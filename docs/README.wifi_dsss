@@ -1,0 +1,11 @@
+This is the wifi_dsss-write-a-block package meant as a guide to building
+out-of-tree packages. To use the wifi_dsss blocks, the Python namespaces
+is in 'wifi_dsss', which is imported as:
+
+    import wifi_dsss
+
+See the Doxygen documentation for details about the blocks available
+in this package. A quick listing of the details can be found in Python
+after importing by using:
+
+    help(wifi_dsss)

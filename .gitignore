@@ -30,3 +30,17 @@
 *.exe
 *.out
 *.app
+
+# temporary saved files
+*.asv
+.DS_Store
+*.swp
+
+# tags and logs
+tag
+*.log
+*.orig
+
+# build and examples
+build/
+
