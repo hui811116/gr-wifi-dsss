@@ -9,8 +9,10 @@
 
 %{
 #include "wifi_dsss/ppdu_prefixer.h"
+#include "wifi_dsss/ppdu_chip_mapper_bc.h"
 %}
 
 
 %include "wifi_dsss/ppdu_prefixer.h"
-GR_SWIG_BLOCK_MAGIC2(wifi_dsss, ppdu_prefixer);
+GR_SWIG_BLOCK_MAGIC2(wifi_dsss, ppdu_prefixer);%include "wifi_dsss/ppdu_chip_mapper_bc.h"
+GR_SWIG_BLOCK_MAGIC2(wifi_dsss, ppdu_chip_mapper_bc);

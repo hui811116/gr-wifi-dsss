@@ -27,6 +27,7 @@ link_directories(${Boost_LIBRARY_DIRS})
 
 list(APPEND wifi_dsss_sources
     ppdu_prefixer.cc
+    ppdu_chip_mapper_bc_impl.cc
 )
 
 set(wifi_dsss_sources "${wifi_dsss_sources}" PARENT_SCOPE)

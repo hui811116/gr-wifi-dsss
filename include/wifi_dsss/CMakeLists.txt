@@ -22,5 +22,6 @@
 ########################################################################
 install(FILES
     api.h
-    ppdu_prefixer.h DESTINATION include/wifi_dsss
+    ppdu_prefixer.h
+    ppdu_chip_mapper_bc.h DESTINATION include/wifi_dsss
 )

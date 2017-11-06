@@ -18,5 +18,6 @@
 # Boston, MA 02110-1301, USA.
 
 install(FILES
-    wifi_dsss_ppdu_prefixer.xml DESTINATION share/gnuradio/grc/blocks
+    wifi_dsss_ppdu_prefixer.xml
+    wifi_dsss_ppdu_chip_mapper_bc.xml DESTINATION share/gnuradio/grc/blocks
 )
