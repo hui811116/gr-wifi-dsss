@@ -108,36 +108,43 @@ namespace gr {
           d_rate_tag = pmt::intern("LONG1M");
           d_rateVal = 1;
           d_preCnt = LONG_PREAMBLE_LENGTH;
+          d_chip_mapper = &ppdu_chip_mapper_bc_impl::dbpsk_1M_chips;
         break;
         case LONG2M:
           d_rate_tag = pmt::intern("LONG2M");
           d_rateVal = 2;
           d_preCnt = LONG_PREAMBLE_LENGTH;
+          d_chip_mapper = &ppdu_chip_mapper_bc_impl::dqpsk_2M_chips;
         break;
         case LONG5_5M:
           d_rate_tag = pmt::intern("LONG5_5M");
           d_rateVal = 5.5;
           d_preCnt = LONG_PREAMBLE_LENGTH;
+          d_chip_mapper = &ppdu_chip_mapper_bc_impl::cck_5_5M_chips;
         break;
         case LONG11M:
           d_rate_tag = pmt::intern("LONG11M");
           d_rateVal = 11;
           d_preCnt = LONG_PREAMBLE_LENGTH;
+          d_chip_mapper = &ppdu_chip_mapper_bc_impl::cck_11M_chips;
         break;
         case SHORT2M:
           d_rate_tag = pmt::intern("SHORT2M");
           d_rateVal = 2;
           d_preCnt = LONG_PREAMBLE_LENGTH;
+          d_chip_mapper = &ppdu_chip_mapper_bc_impl::dqpsk_2M_chips;
         break;
         case SHORT5_5M:
           d_rate_tag = pmt::intern("SHORT5_5M");
           d_rateVal = 5.5;
           d_preCnt = LONG_PREAMBLE_LENGTH;
+          d_chip_mapper = &ppdu_chip_mapper_bc_impl::cck_5_5M_chips;
         break;
         case SHORT11M:
           d_rate_tag = pmt::intern("SHORT11M");
           d_rateVal = 11;
           d_preCnt = LONG_PREAMBLE_LENGTH;
+          d_chip_mapper = &ppdu_chip_mapper_bc_impl::cck_11M_chips;
         break;
         default:
           throw std::invalid_argument("Unrecognized rate type");
