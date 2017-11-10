@@ -22,12 +22,13 @@
 ########################################################################
 include(GrPlatform) #define LIB_SUFFIX
 
-include_directories(${Boost_INCLUDE_DIR})
-link_directories(${Boost_LIBRARY_DIRS})
+include_directories(${Boost_INCLUDE_DIR} ${VOLK_INCLUDE_DIRS})
+link_directories(${Boost_LIBRARY_DIRS} ${VOLK_LIBRARY_DIRS})
 
 list(APPEND wifi_dsss_sources
     ppdu_prefixer.cc
     ppdu_chip_mapper_bc_impl.cc
+    chip_sync_c_impl.cc
 )
 
 set(wifi_dsss_sources "${wifi_dsss_sources}" PARENT_SCOPE)
@@ -37,7 +38,7 @@ if(NOT wifi_dsss_sources)
 endif(NOT wifi_dsss_sources)
 
 add_library(gnuradio-wifi_dsss SHARED ${wifi_dsss_sources})
-target_link_libraries(gnuradio-wifi_dsss ${Boost_LIBRARIES} ${GNURADIO_ALL_LIBRARIES})
+target_link_libraries(gnuradio-wifi_dsss ${Boost_LIBRARIES} ${GNURADIO_ALL_LIBRARIES} ${VOLK_LIBRARIES})
 set_target_properties(gnuradio-wifi_dsss PROPERTIES DEFINE_SYMBOL "gnuradio_wifi_dsss_EXPORTS")
 
 if(APPLE)

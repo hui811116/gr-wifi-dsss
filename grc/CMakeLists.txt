@@ -19,5 +19,6 @@
 
 install(FILES
     wifi_dsss_ppdu_prefixer.xml
-    wifi_dsss_ppdu_chip_mapper_bc.xml DESTINATION share/gnuradio/grc/blocks
+    wifi_dsss_ppdu_chip_mapper_bc.xml
+    wifi_dsss_chip_sync_c.xml DESTINATION share/gnuradio/grc/blocks
 )

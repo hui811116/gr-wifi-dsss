@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<block>
+  <name>DSSS Packet Sink</name>
+  <key>wifi_dsss_chip_sync_c</key>
+  <category>[wifi_dsss]</category>
+  <import>import wifi_dsss</import>
+  <make>wifi_dsss.chip_sync_c($preType)</make>
+  <!-- Make one 'param' node for every Parameter you want settable from the GUI.
+       Sub-nodes:
+       * name
+       * key (makes the value accessible as $keyname, e.g. in the make node)
+       * type -->
+  <param>
+    <name>Preamble Type</name>
+    <key>preType</key>
+    <value>True</value>
+    <type>bool</type>
+    <option>
+      <name>Long</name>
+      <key>True</key>
+    </option>
+    <option>
+      <name>Short</name>
+      <key>False</key>
+    </option>
+  </param>
+
+  <!-- Make one 'sink' node per input. Sub-nodes:
+       * name (an identifier for the GUI)
+       * type
+       * vlen
+       * optional (set to 1 for optional inputs) -->
+  <sink>
+    <name>chip_in</name>
+    <type>complex</type>
+  </sink>
+
+  <!-- Make one 'source' node per output. Sub-nodes:
+       * name (an identifier for the GUI)
+       * type
+       * vlen
+       * optional (set to 1 for optional inputs) -->
+  <source>
+    <name>psdu_out</name>
+    <type>message</type>
+  </source>
+</block>
