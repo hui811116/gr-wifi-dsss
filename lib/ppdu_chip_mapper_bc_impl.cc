@@ -102,7 +102,8 @@ namespace gr {
       : gr::block("ppdu_chip_mapper_bc",
               gr::io_signature::make(1, 1, sizeof(char)),
               gr::io_signature::make(1, 1, sizeof(gr_complex))),
-              d_lentag(pmt::intern(lentag))
+              d_lentag(pmt::intern(lentag)),
+              d_name(pmt::intern(alias()))
     {
       switch(rate)
       {
@@ -154,6 +155,7 @@ namespace gr {
       }
       d_rate = rate;
       d_count =0;
+      set_tag_propagation_policy(TPP_DONT);
     }
 
     /*
@@ -286,6 +288,36 @@ namespace gr {
       }
       return nout;
     }
+    int
+    ppdu_chip_mapper_bc_impl::update_tag(int total_bytes) const
+    {
+      switch(d_rate){
+        case LONG1M:
+          return total_bytes*88;
+        break;
+        case LONG2M:
+          return 24*88+(total_bytes-24)*44;
+        break;
+        case LONG5_5M:
+          return 24*88+(total_bytes-24)*16;
+        break;
+        case LONG11M:
+          return 24*88+(total_bytes-24)*8;
+        break;
+        case SHORT2M:
+          return 15*88+(total_bytes-15)*44;
+        break;
+        case SHORT5_5M:
+          return 15*88+(total_bytes-15)*16;
+        break;
+        case SHORT11M:
+          return 15*88+(total_bytes-15)*8;
+        break;
+        default:
+          return 0;
+        break;
+      }
+    }
 
     int
     ppdu_chip_mapper_bc_impl::general_work (int noutput_items,
@@ -307,6 +339,8 @@ namespace gr {
             d_copy = 0;
             d_phase_acc = 0;
             //dout<<"found a length tag, size="<<d_count<<std::endl;
+            int newLen = update_tag(d_count);
+            add_item_tag(0,nitems_written(0),d_lentag,pmt::from_long(newLen),d_name);
           }else{
             consume_each(offset);
             return 0;

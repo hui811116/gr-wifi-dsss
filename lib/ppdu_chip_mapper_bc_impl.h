@@ -47,6 +47,7 @@ namespace gr {
       float d_phase_acc;
       float d_rateVal;
       const pmt::pmt_t d_lentag;
+      const pmt::pmt_t d_name;
       int chipGen(gr_complex* out,const unsigned char* in,int noutput_items,int nin,int& nconsume);
       int cck_5_5M_chips(gr_complex* out,unsigned char byte, bool even);
       int cck_11M_chips(gr_complex* out,unsigned char byte, bool even);
@@ -54,6 +55,7 @@ namespace gr {
       int dbpsk_1M_chips(gr_complex* out,unsigned char byte, bool even);
       int (ppdu_chip_mapper_bc_impl::*d_chip_mapper)(gr_complex* out,unsigned char byte, bool even);
       int nout_check() const;
+      int update_tag(int total_bytes) const;
      public:
       ppdu_chip_mapper_bc_impl(int rate, const std::string& lentag);
       ~ppdu_chip_mapper_bc_impl();
