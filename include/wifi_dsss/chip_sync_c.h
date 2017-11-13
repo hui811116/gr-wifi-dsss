@@ -46,7 +46,7 @@ namespace gr {
        * class. wifi_dsss::chip_sync_c::make is the public interface for
        * creating new instances.
        */
-      static sptr make(bool longPre);
+      static sptr make(bool longPre, float threshold);
     };
 
   } // namespace wifi_dsss

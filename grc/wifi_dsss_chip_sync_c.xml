@@ -4,7 +4,7 @@
   <key>wifi_dsss_chip_sync_c</key>
   <category>[wifi_dsss]</category>
   <import>import wifi_dsss</import>
-  <make>wifi_dsss.chip_sync_c($preType)</make>
+  <make>wifi_dsss.chip_sync_c($preType,$threshold)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name
@@ -23,6 +23,12 @@
       <name>Short</name>
       <key>False</key>
     </option>
+  </param>
+  <param>
+    <name>Threshold</name>
+    <key>threshold</key>
+    <value>8.0</value>
+    <type>float</type>
   </param>
 
   <!-- Make one 'sink' node per input. Sub-nodes:

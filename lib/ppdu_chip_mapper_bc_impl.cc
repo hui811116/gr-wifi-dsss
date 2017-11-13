@@ -30,6 +30,8 @@
 
 namespace gr {
   namespace wifi_dsss {
+    #define d_debug 1
+    #define dout d_debug && std::cout
     #define TWO_PI M_PI*2.0f 
     #define LONG_PREAMBLE_LENGTH 24
     #define SHORT_PREAMBLE_LENGTH 15
@@ -216,7 +218,7 @@ namespace gr {
         phase_0 = d_cck_dqpsk_phase[byte&0x03][1];
       }
       for(int i=0;i<3;++i){
-        uint8_t tmpBit = byte>>((i+1)*2) & 0x03;
+        uint8_t tmpBit = (byte>>((i+1)*2)) & 0x03;
         other[i] = d_cck_qpsk[tmpBit];
       }
       cck_gen(out,phase_0,other[0],other[1],other[2]);
@@ -227,12 +229,12 @@ namespace gr {
     {
       gr_complex tmpChip;
       for(int i=0;i<4;++i){
-        uint8_t tmp_bits = byte>>(2*i) & 0x03;
+        uint8_t tmp_bits = (byte>>(2*i)) & 0x03;
         d_phase_acc += d_dqpsk_phase[tmp_bits];
         d_phase_acc = phase_wrap(d_phase_acc);
         tmpChip =gr_expj(d_phase_acc);
         for(int j=0;j<11;++j){
-          out[i*8+j] = tmpChip * d_barker[j];
+          out[i*11+j] = tmpChip * d_barker[j];
         }
       }
       return 44;
@@ -242,14 +244,14 @@ namespace gr {
     {
       gr_complex tmpChip;
       for(int i=0;i<8;++i){
-        uint8_t tmp_bit = byte>>i & 0x01;
+        uint8_t tmp_bit = (byte>>i) & 0x01;
         d_phase_acc += d_dbpsk_phase[tmp_bit];
         d_phase_acc = phase_wrap(d_phase_acc);
         tmpChip = gr_expj(d_phase_acc);
         // can use volk
         // current for simplicity, use simple method
         for(int j=0;j<11;++j){
-          out[i*8+j]= tmpChip * d_barker[j];
+          out[i*11+j]= tmpChip * d_barker[j];
         }
       }
       return 88;
@@ -304,18 +306,20 @@ namespace gr {
             d_count = pmt::to_long(tags[0].value);
             d_copy = 0;
             d_phase_acc = 0;
+            //dout<<"found a length tag, size="<<d_count<<std::endl;
           }else{
             consume_each(offset);
             return 0;
           }
         }
       }
-      if(d_count){
-        int nin = std::min(d_count,ninput_items[0]);
+      if(d_copy<d_count){
+        int nin = std::min(d_count-d_copy,ninput_items[0]);
         int ncon = 0;
         nout = chipGen(out,in,noutput_items,nin,ncon);
         d_copy+=ncon;
         if(d_count == d_copy){
+          //dout<<"reaching counted byte, reset and prepare for next packet"<<std::endl;
           d_count = 0;
           d_copy  = 0;
         }

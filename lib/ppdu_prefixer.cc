@@ -30,21 +30,21 @@
 
 namespace gr {
   namespace wifi_dsss {
-    #define d_debug 1
+    #define d_debug 0
     #define dout d_debug && std::cout
     #define LONG_PREAMBLE_LEN 18
     #define SHORT_PREAMBLE_LEN 9
     static const unsigned char d_long_preamble[18] = {
       0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
-      0xff,0xff,0xff,0xff,0xf3,0xA0
+      0xff,0xff,0xff,0xff,0xA0,0xF3
     };
     static const unsigned char d_short_preamble[9] = {
-      0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x05,0xCf
+      0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xCF,0x05
     };
     static const unsigned char d_sig[4] = {
       0x0A,0x14,0x37,0x6e
     };
-    static const uint16_t d_crc_mask[2] = {0x0020, 0x1000};
+    static const uint16_t d_crc_mask[2] = {0x0000, 0x0810};
     static const uint8_t d_spread_mask = 0x91;
     // 1M, 2M, 5.5M, 11M
   	class ppdu_prefixer_impl : public ppdu_prefixer
@@ -149,6 +149,9 @@ namespace gr {
         //d_current_pkt = pmt::cons(key,blob);
         d_current_pkt = pmt::cons(pmt::PMT_NIL,blob);
         message_port_pub(d_out_port,d_current_pkt);
+        //if(d_debug){
+        //  descrambler();
+        //}
   		}
   	private:
       void placePreambleSfd()
@@ -213,21 +216,19 @@ namespace gr {
         // crc
         uint16_t crc16_reg = 0xffff;
         //uint16_t crc_mask[2] = {0x0020, 0x1000};
-        uint32_t tmphdr = d_buf[d_ppdu_index-4];
-        tmphdr = tmphdr | d_buf[d_ppdu_index-3]<<8;
-        tmphdr = tmphdr | d_buf[d_ppdu_index-2]<<16;
-        tmphdr = tmphdr | d_buf[d_ppdu_index-1]<<24;
-        for(int i=0;i<32;++i){
-          uint16_t newBit = tmphdr >> i;
-          uint16_t nlsb = (crc16_reg >> 15) ^ ( newBit & 0x0001 );
-          crc16_reg = (crc16_reg<<1) | newBit;
-          newBit  = (crc16_reg & d_crc_mask[0]) ^ nlsb;
-          crc16_reg = crc16_reg & (~d_crc_mask[0]);
-          crc16_reg |= newBit;
-          newBit = (crc16_reg & d_crc_mask[1]) ^ nlsb;
-          crc16_reg = crc16_reg & (~d_crc_mask[1]);
-          crc16_reg |= newBit;
+        uint32_t tmphdr = 0x00000000;
+        for(int i=0;i<4;++i){
+          tmphdr |= (d_buf[d_ppdu_index-1-i]<<(8*(3-i)) );
         }
+        //dout<<"header at tx:"<<std::hex<<(int)tmphdr<<std::dec<<std::endl;
+        for(int i=0;i<32;++i){
+          uint16_t newBit = (tmphdr >> i) & 0x0001;
+          uint16_t nlsb = (crc16_reg >> 15) ^ newBit;
+          crc16_reg ^= d_crc_mask[nlsb];
+          crc16_reg = (crc16_reg<<1) | nlsb;
+          //dout<<"crc16 transmitter="<<std::hex<<"nb="<<(int)newBit<<"nlsb="<<(int)nlsb<<"crc:"<<(int)crc16_reg<<std::dec<<std::endl;
+        }
+        
         uint16_t crc16_inv = ~crc16_reg;
         u8Len = (uint8_t*) &crc16_inv;
         d_buf[d_ppdu_index++] = u8Len[0];
@@ -246,13 +247,30 @@ namespace gr {
           tmp_byte = 0x00;
           for(int j=0;j<8;++j){
             tmp_bit = (d_buf[i] >> j)&0x01;
-            tmp_spd = tmp_bit ^((d_init_state >>4)&0x01 )^((d_init_state>>7)&0x01);
+            tmp_spd = tmp_bit ^((d_init_state >>3)&0x01 )^((d_init_state>>6)&0x01);
             tmp_byte |= (tmp_spd << j);
             d_init_state = (d_init_state<<1) | tmp_spd;
           }
           d_spread_buf[i] = tmp_byte;
         }
       }
+      /*void descrambler()
+      {
+        uint8_t tmp_state = 0x1B;
+        uint8_t tmp_byte, tmp_bit,tmp_spd;
+        dout<<std::hex;
+        for(int i =0;i<d_ppdu_index;++i){
+          tmp_byte = 0x00;
+          for(int j=0;j<8;++j){
+            tmp_bit = (d_spread_buf[i] >> j) & 0x01;
+            tmp_spd = tmp_bit ^ ( (tmp_state>>4)&0x01 ) ^ ((tmp_state>>7)&0x01 );
+            tmp_state = (tmp_state<<1) | tmp_bit;
+            tmp_byte |= (tmp_spd<<j);
+          }
+          dout<<(int)tmp_byte<<" ";
+        }
+        dout<<std::endl;
+      }*/
   		const pmt::pmt_t d_in_port;
   		const pmt::pmt_t d_out_port;
       bool d_long_pre;

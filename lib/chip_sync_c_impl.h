@@ -152,7 +152,7 @@ namespace gr {
       void psdu_write_bits(const uint16_t& outByte);
       
      public:
-      chip_sync_c_impl(bool longPre);
+      chip_sync_c_impl(bool longPre, float threshold);
       ~chip_sync_c_impl();
 
       // Where all the action really happens
