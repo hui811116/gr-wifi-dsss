@@ -46,7 +46,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>wifi_dsss_phy_test</value>
+      <value>usrp_dsss_tx</value>
     </param>
     <param>
       <key>max_nouts</key>

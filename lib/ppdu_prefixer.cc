@@ -144,14 +144,20 @@ namespace gr {
         placeHeader(io);
         memcpy(&d_buf[d_ppdu_index],uvec,sizeof(char)*io);
         d_ppdu_index+=io;
+        /*for(int i=0;i<d_ppdu_index;++i){
+          dout<<std::hex<<(int)d_buf[i]<<std::dec;
+          if((i+1)%20==0){
+            dout<<std::endl;
+          }else{
+            dout<<",";
+          }
+        }
+        dout<<std::endl;
+        */
         scrambler();
         blob = pmt::make_blob(d_spread_buf,d_ppdu_index);
-        //d_current_pkt = pmt::cons(key,blob);
         d_current_pkt = pmt::cons(pmt::PMT_NIL,blob);
         message_port_pub(d_out_port,d_current_pkt);
-        //if(d_debug){
-        //  descrambler();
-        //}
   		}
   	private:
       void placePreambleSfd()
@@ -215,18 +221,16 @@ namespace gr {
         d_buf[d_ppdu_index++] = u8Len[1];
         // crc
         uint16_t crc16_reg = 0xffff;
-        //uint16_t crc_mask[2] = {0x0020, 0x1000};
         uint32_t tmphdr = 0x00000000;
         for(int i=0;i<4;++i){
           tmphdr |= (d_buf[d_ppdu_index-1-i]<<(8*(3-i)) );
         }
-        //dout<<"header at tx:"<<std::hex<<(int)tmphdr<<std::dec<<std::endl;
+        dout<<"header at tx:"<<std::hex<<(int)tmphdr<<std::dec<<std::endl;
         for(int i=0;i<32;++i){
           uint16_t newBit = (tmphdr >> i) & 0x0001;
           uint16_t nlsb = (crc16_reg >> 15) ^ newBit;
           crc16_reg ^= d_crc_mask[nlsb];
           crc16_reg = (crc16_reg<<1) | nlsb;
-          //dout<<"crc16 transmitter="<<std::hex<<"nb="<<(int)newBit<<"nlsb="<<(int)nlsb<<"crc:"<<(int)crc16_reg<<std::dec<<std::endl;
         }
         
         uint16_t crc16_inv = ~crc16_reg;
@@ -249,25 +253,34 @@ namespace gr {
             tmp_bit = (d_buf[i] >> j)&0x01;
             tmp_spd = tmp_bit ^((d_init_state >>3)&0x01 )^((d_init_state>>6)&0x01);
             tmp_byte |= (tmp_spd << j);
+            //dout<<"state="<<std::hex<<(int)d_init_state<<",input:"<<(int)tmp_bit<<" ,output:"<<(int)tmp_spd<<std::dec<<std::endl;
             d_init_state = (d_init_state<<1) | tmp_spd;
           }
           d_spread_buf[i] = tmp_byte;
         }
+        //debug_descrambler();
       }
-      /*void descrambler()
+      /*
+      void debug_descrambler()
       {
-        uint8_t tmp_state = 0x1B;
-        uint8_t tmp_byte, tmp_bit,tmp_spd;
-        dout<<std::hex;
-        for(int i =0;i<d_ppdu_index;++i){
-          tmp_byte = 0x00;
+        unsigned char tmp_out[d_ppdu_index];
+        uint8_t tmp_reg = 0x1B;
+        for(int i=0;i<d_ppdu_index;++i){
+          // spread bytes
+          tmp_out[i] = 0x00;
           for(int j=0;j<8;++j){
-            tmp_bit = (d_spread_buf[i] >> j) & 0x01;
-            tmp_spd = tmp_bit ^ ( (tmp_state>>4)&0x01 ) ^ ((tmp_state>>7)&0x01 );
-            tmp_state = (tmp_state<<1) | tmp_bit;
-            tmp_byte |= (tmp_spd<<j);
+            uint8_t tmpBit = (d_spread_buf[i]>>j)&0x01;
+            uint8_t tmpOut = (((tmp_reg>>3)&0x01)^((tmp_reg>>6)&0x01)^tmpBit);
+            tmp_out[i] |= (tmpOut<<j);
+            //dout<<"state="<<std::hex<<(int)tmp_reg<<",input:"<<(int)tmpBit<<" ,output:"<<(int)tmpOut<<std::dec<<std::endl;
+            tmp_reg = ((tmp_reg<<1) | tmpBit);
           }
-          dout<<(int)tmp_byte<<" ";
+          dout<<std::hex<<(int)tmp_out[i]<<std::dec;
+          if((i+1)%20==0){
+            dout<<std::endl;
+          }else{
+            dout<<" ";
+          }
         }
         dout<<std::endl;
       }*/

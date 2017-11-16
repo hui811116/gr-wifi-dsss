@@ -29,7 +29,7 @@
 
 namespace gr {
   namespace wifi_dsss {
-    #define d_debug 0
+    #define d_debug 1
     #define dout d_debug && std::cout
     #define TWO_PI M_PI*2.0f
     static const float d_barker[11]={1,-1,1,1,-1,1,1,1,-1,-1,-1};
@@ -85,6 +85,11 @@ namespace gr {
     void
     chip_sync_c_impl::enter_search()
     {
+      if(d_preType){
+        d_des_state = 0x1B;
+      }else{
+        d_des_state = 0x6C;
+      }
       d_chip_sync = false;
       d_rx_state = SEARCH;
       d_prev_sym = gr_complex(1.0,0);
@@ -117,7 +122,6 @@ namespace gr {
     bool
     chip_sync_c_impl::check_hdr()
     {
-      //dout<<std::hex<<",header:"<<(int)d_hdr_reg<<" ,crc:"<<(int)d_hdr_crc<<std::dec<<std::endl;
       // crc check
       uint16_t crc_init = 0xffff;
       for(int i=0;i<32;++i){
@@ -126,9 +130,7 @@ namespace gr {
         uint16_t tmpXor = (newLsb)? 0x0810 : 0x0000;
         crc_init ^= tmpXor;
         crc_init = (crc_init<<1) | newLsb;
-        //dout<<std::hex<<"nb="<<(int)newBit<<",reg="<<(int)crc_init<<std::dec<<std::endl;
       }
-      //dout<<std::hex<<"crc_init="<<(int)crc_init<<" hdr="<<(int)d_hdr_crc<<" xor="<<(int)(crc_init^d_hdr_crc)<<std::dec<<std::endl;
       if( (crc_init ^d_hdr_crc) == 0xffff){
         // crc passed
         //dout<<"crc check passed"<<std::endl;
@@ -140,7 +142,6 @@ namespace gr {
       d_sig_dec = d_hdr_reg & 0xff;
       d_service_dec = (d_hdr_reg >> 8) & 0xff;
       d_length_dec = (d_hdr_reg>>16) & 0xffff;
-      //dout<<"Read HDR...sig,service,length="<<std::hex<<(int)d_sig_dec<<","<<(int)d_service_dec<<","<<(int)d_length_dec<<std::dec<<std::endl;
       // find signal field
       if(d_sig_dec == 0x0A){
         if(!d_preType){
@@ -151,6 +152,7 @@ namespace gr {
           d_psdu_bytes_len = (int) floor(d_length_dec/8.0);
           d_psdu_chip_size = 11;
           d_psdu_type = LONG1M;
+          dout<<"Header Checked, Rate LONG DSSS1M detected"<<std::endl;
         }
       }else if(d_sig_dec == 0x14){
         // 2m
@@ -158,12 +160,14 @@ namespace gr {
         d_psdu_bytes_len = (int) floor(d_length_dec * d_rate_val/8.0);
         d_psdu_chip_size = 11;
         d_psdu_type = DSSS2M;
+        dout<<"Header Checked, Rate DSSS2M detected"<<std::endl;
       }else if(d_sig_dec == 0x37){
         // 5.5m
         d_rate_val = 5.5;
         d_psdu_bytes_len =(int) floor(d_length_dec * d_rate_val/8.0);
         d_psdu_chip_size = 8;
         d_psdu_type = CCK5_5M;
+        dout<<"Header Checked, Rate DSSS5.5M detected"<<std::endl;
       }else if(d_sig_dec == 0x6e){
         // 11m
         d_rate_val = 11;
@@ -173,6 +177,7 @@ namespace gr {
         d_psdu_bytes_len = (d_service_dec>>6 & 0x01)? d_psdu_bytes_len-1 : d_psdu_bytes_len;
         d_psdu_chip_size = 8;
         d_psdu_type = CCK11M;
+        dout<<"Header Checked, Rate DSSS11M detected"<<std::endl;
       }else{
         return false;
       }
@@ -188,7 +193,7 @@ namespace gr {
         diff = autoVal * conj(d_prev_sym);
         d_prev_sym = autoVal;
         phase_diff = atan2(diff.imag(),diff.real())/(0.5*M_PI);
-        return (abs(phase_diff)>1.0)? 0x01 : 0x00;
+        return (fabs(phase_diff)>1.0)? 0x01 : 0x00;
       }
       return 0xff;
     }
@@ -206,7 +211,7 @@ namespace gr {
             diff = tmpVal * conj(d_prev_sym);
             d_prev_sym = tmpVal;
             phase_diff = atan2(diff.imag(),diff.real())/(0.5*M_PI);
-            return (abs(phase_diff)>1.0)? 0x0001 : 0x0000;
+            return (fabs(phase_diff)>1.0)? 0x0001 : 0x0000;
           }
           return 0xffff;
         break;
@@ -326,7 +331,7 @@ namespace gr {
               if(!d_chip_sync){
                 volk_32fc_32f_dot_prod_32fc(&autoVal,&in[ncon++],d_barker,11);
                 if(abs(autoVal)>=d_threshold){
-                  //dout<<"at search state, sync a barker sequence. val="<<abs(autoVal)<<", thres="<<d_threshold<<std::endl;
+                  dout<<"at search state, sync a barker sequence. val="<<abs(autoVal)<<", thres="<<d_threshold<<std::endl;
                   d_chip_sync = true;
                   d_chip_cnt = 0;
                   d_prev_sym = autoVal;
@@ -337,15 +342,14 @@ namespace gr {
                   d_chip_cnt =0;
                   tmpbit = ppdu_get_symbol(&in[ncon++]);
                   if(tmpbit==0xff){
-                    //dout<<"Search failed set chip sync to false"<<std::endl;
+                    dout<<"Search failed set chip sync to false"<<std::endl;
                     d_chip_sync= false;
                     d_prev_sym = gr_complex(1.0,0);
                   }else{
                     uint8_t deBit = descrambler(tmpbit);
                     d_sync_reg = (d_sync_reg<<1) | deBit;
-                    //dout<<std::hex<<(int)d_sync_reg<<std::dec<<std::endl;
                     if(d_sync_reg == d_sync_word){
-                      //dout<<"At SEARCH, found sync word, change state"<<std::endl;
+                      dout<<"At SEARCH, found sync word, change state"<<std::endl;
                       enter_sync();
                       break;
                     }
@@ -367,23 +371,21 @@ namespace gr {
                   break;
                 }else{
                   uint8_t deBit = descrambler(tmpbit);
-                  //dout<<"debits="<<std::hex<<(int)deBit<<std::dec<<std::endl;
                   if(d_bit_cnt<32){
                     d_hdr_reg |= (deBit<<d_bit_cnt);
                   }else{
                     d_hdr_crc |= (deBit<<(d_bit_cnt-32));
                   }
-                  //d_hdr_buf = (d_hdr_buf<<1)|deBit;
                   d_bit_cnt++;
                   if(d_bit_cnt == 48){
                     d_bit_cnt =0;
                     // including crc
                     if(check_hdr()){
-                      //dout<<"At state sync, header check passed"<<std::endl;
+                      dout<<"At state sync, header check passed"<<std::endl;
                       enter_psdu();
                       break;
                     }else{
-                      //dout<<"At state sync, header check failed"<<std::endl;
+                      dout<<"At state sync, header check failed"<<std::endl;
                       enter_search();
                       break;
                     }

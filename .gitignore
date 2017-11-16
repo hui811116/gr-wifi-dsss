@@ -44,4 +44,5 @@ tag
 # build and examples
 build/
 examples/**
+examples/*.py
 

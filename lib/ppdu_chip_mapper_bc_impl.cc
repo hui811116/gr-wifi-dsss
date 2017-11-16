@@ -30,7 +30,7 @@
 
 namespace gr {
   namespace wifi_dsss {
-    #define d_debug 1
+    #define d_debug 0
     #define dout d_debug && std::cout
     #define TWO_PI M_PI*2.0f 
     #define LONG_PREAMBLE_LENGTH 24
@@ -112,42 +112,49 @@ namespace gr {
           d_rateVal = 1;
           d_preCnt = LONG_PREAMBLE_LENGTH;
           d_chip_mapper = &ppdu_chip_mapper_bc_impl::dbpsk_1M_chips;
+          d_preType = true;
         break;
         case LONG2M:
           d_rate_tag = pmt::intern("LONG2M");
           d_rateVal = 2;
           d_preCnt = LONG_PREAMBLE_LENGTH;
           d_chip_mapper = &ppdu_chip_mapper_bc_impl::dqpsk_2M_chips;
+          d_preType = true;
         break;
         case LONG5_5M:
           d_rate_tag = pmt::intern("LONG5_5M");
           d_rateVal = 5.5;
           d_preCnt = LONG_PREAMBLE_LENGTH;
           d_chip_mapper = &ppdu_chip_mapper_bc_impl::cck_5_5M_chips;
+          d_preType = true;
         break;
         case LONG11M:
           d_rate_tag = pmt::intern("LONG11M");
           d_rateVal = 11;
           d_preCnt = LONG_PREAMBLE_LENGTH;
           d_chip_mapper = &ppdu_chip_mapper_bc_impl::cck_11M_chips;
+          d_preType = true;
         break;
         case SHORT2M:
           d_rate_tag = pmt::intern("SHORT2M");
           d_rateVal = 2;
           d_preCnt = LONG_PREAMBLE_LENGTH;
           d_chip_mapper = &ppdu_chip_mapper_bc_impl::dqpsk_2M_chips;
+          d_preType = false;
         break;
         case SHORT5_5M:
           d_rate_tag = pmt::intern("SHORT5_5M");
           d_rateVal = 5.5;
           d_preCnt = LONG_PREAMBLE_LENGTH;
           d_chip_mapper = &ppdu_chip_mapper_bc_impl::cck_5_5M_chips;
+          d_preType = false;
         break;
         case SHORT11M:
           d_rate_tag = pmt::intern("SHORT11M");
           d_rateVal = 11;
           d_preCnt = LONG_PREAMBLE_LENGTH;
           d_chip_mapper = &ppdu_chip_mapper_bc_impl::cck_11M_chips;
+          d_preType = false;
         break;
         default:
           throw std::invalid_argument("Unrecognized rate type");
