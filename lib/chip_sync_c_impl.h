@@ -127,6 +127,13 @@ namespace gr {
       int d_bit_len;
       int d_psdu_bytes_len;
       int d_psdu_bit_cnt;
+      // for sync
+      float d_phase;
+      float d_freq;
+      float d_alpha;
+      float d_beta;
+      float d_crit;
+      float d_loopbw;
 
       uint16_t d_sync_reg;
       uint8_t d_byte_reg;
@@ -150,7 +157,10 @@ namespace gr {
       uint16_t psdu_get_symbol(const gr_complex* in,bool isEven);
       uint8_t ppdu_get_symbol(const gr_complex* in);
       void psdu_write_bits(const uint16_t& outByte);
-      
+
+      gr_complex pll_bpsk(const gr_complex& in);
+      gr_complex pll_qpsk(const gr_complex& in);
+      void reset_pll();
      public:
       chip_sync_c_impl(bool longPre, float threshold);
       ~chip_sync_c_impl();

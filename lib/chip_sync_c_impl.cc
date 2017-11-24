@@ -26,6 +26,7 @@
 #include "chip_sync_c_impl.h"
 #include <volk/volk.h>
 #include <gnuradio/math.h>
+#include <gnuradio/expj.h>
 
 namespace gr {
   namespace wifi_dsss {
@@ -38,6 +39,21 @@ namespace gr {
                                                   {0x00,0x02,0x03,0x01},
                                                   {0x03,0x01,0x00,0x02}
                                                 };
+    static inline float phase_wrap(float phase)
+    {
+      while(phase>TWO_PI)
+        phase-= TWO_PI;
+      while(phase<-TWO_PI)
+        phase+= TWO_PI;
+      return phase;
+    }
+    static inline float freq_limit(float freq)
+    {
+      float x1 = fabs(freq+ 1.0);
+      float x2 = fabs(freq- 1.0);
+      x1-=x2;
+      return 0.5 * x1;
+    }
     chip_sync_c::sptr
     chip_sync_c::make(bool longPre,float threshold)
     {
@@ -67,6 +83,13 @@ namespace gr {
       }else{
         d_threshold = threshold;
       }
+      d_phase = 0;
+      d_freq =0;
+      d_crit = std::sqrt(0.5);
+      d_loopbw = 0.0314;
+      float denum = 1 + 2*d_crit*d_loopbw + d_loopbw*d_loopbw;
+      d_alpha = 4*d_crit*d_loopbw/denum;
+      d_beta = 4*d_loopbw*d_loopbw/denum;
     }
 
     /*
@@ -189,6 +212,8 @@ namespace gr {
       gr_complex autoVal,diff;
       float phase_diff;
       volk_32fc_32f_dot_prod_32fc(&autoVal,in,d_barker,11);
+      // FIXME
+      autoVal = pll_bpsk(autoVal);
       if(abs(autoVal)>=d_threshold){
         diff = autoVal * conj(d_prev_sym);
         d_prev_sym = autoVal;
@@ -207,6 +232,8 @@ namespace gr {
       switch(d_psdu_type){
         case LONG1M:
           volk_32fc_32f_dot_prod_32fc(&tmpVal, in,d_barker,11);
+          // FIXME
+          tmpVal = pll_bpsk(tmpVal);
           if(abs(tmpVal)>=d_threshold){
             diff = tmpVal * conj(d_prev_sym);
             d_prev_sym = tmpVal;
@@ -217,6 +244,8 @@ namespace gr {
         break;
         case DSSS2M:
           volk_32fc_32f_dot_prod_32fc(&tmpVal, in,d_barker,11);
+          // FIXME
+          tmpVal = pll_qpsk(tmpVal);
           if(abs(tmpVal)>=d_threshold){
             diff = tmpVal * conj(d_prev_sym);
             d_prev_sym = tmpVal;
@@ -235,7 +264,8 @@ namespace gr {
               max_idx = (uint8_t) i;
             }
           }
-          tmpVal = holdVal;
+          // FIXME
+          tmpVal = pll_qpsk(holdVal);
           if(abs(tmpVal)>= d_threshold*(8.0/11.0)){
             diff = tmpVal * conj(d_prev_sym);
             d_prev_sym = tmpVal;
@@ -255,7 +285,8 @@ namespace gr {
               max_idx = (uint8_t) i;
             }
           }
-          tmpVal = holdVal;
+          // FIXME
+          tmpVal = pll_qpsk(holdVal);
           if(abs(tmpVal)>= d_threshold*(8.0/11.0)){
             diff = tmpVal * conj(d_prev_sym);
             d_prev_sym = tmpVal;
@@ -312,6 +343,35 @@ namespace gr {
         break;
       }
     }
+    gr_complex
+    chip_sync_c_impl::pll_bpsk(const gr_complex& in)
+    {
+      gr_complex nco_est = in * gr_expj(-d_phase);
+      float error = real(nco_est)*imag(nco_est);
+      d_freq = d_freq + error * d_beta;
+      d_phase = d_phase + d_freq + error* d_alpha;
+      d_phase = phase_wrap(d_phase);
+      d_freq = freq_limit(d_freq);
+      return nco_est;
+    }
+    gr_complex
+    chip_sync_c_impl::pll_qpsk(const gr_complex& in)
+    {
+      gr_complex nco_est = in * gr_expj(-d_phase);
+      float error = ((real(nco_est)>0)? 1.0 : -1 )*imag(nco_est) - 
+          ((imag(nco_est)>0)?1.0:-1)*real(nco_est);
+      d_freq = d_freq + error * d_beta;
+      d_phase = d_phase + d_freq + error*d_alpha;
+      d_phase = phase_wrap(d_phase);
+      d_freq = freq_limit(d_freq);
+      return nco_est;
+    }
+    void
+    chip_sync_c_impl::reset_pll()
+    {
+      d_phase =0;
+      d_freq = 0;
+    }
     int
     chip_sync_c_impl::general_work (int noutput_items,
                        gr_vector_int &ninput_items,
@@ -334,7 +394,8 @@ namespace gr {
                   dout<<"at search state, sync a barker sequence. val="<<abs(autoVal)<<", thres="<<d_threshold<<std::endl;
                   d_chip_sync = true;
                   d_chip_cnt = 0;
-                  d_prev_sym = autoVal;
+                  //d_prev_sym = autoVal;
+                  d_prev_sym = pll_bpsk(autoVal);
                 }
               }else{
                 d_chip_cnt++;
@@ -345,6 +406,7 @@ namespace gr {
                     dout<<"Search failed set chip sync to false"<<std::endl;
                     d_chip_sync= false;
                     d_prev_sym = gr_complex(1.0,0);
+                    reset_pll();
                   }else{
                     uint8_t deBit = descrambler(tmpbit);
                     d_sync_reg = (d_sync_reg<<1) | deBit;
