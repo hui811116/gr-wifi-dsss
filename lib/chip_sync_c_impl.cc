@@ -79,7 +79,7 @@ namespace gr {
       if(threshold<0){
         throw std::invalid_argument("Threshold should be positive number");
       }else if(threshold>11){
-        d_threshold = 11.0;
+        d_threshold = 1;
       }else{
         d_threshold = threshold;
       }
@@ -209,9 +209,11 @@ namespace gr {
     uint8_t
     chip_sync_c_impl::ppdu_get_symbol(const gr_complex* in)
     {
-      gr_complex autoVal,diff;
+      gr_complex autoVal,diff,in_eg;
       float phase_diff;
+      volk_32fc_x2_conjugate_dot_prod_32fc(&in_eg,in,in,11);
       volk_32fc_32f_dot_prod_32fc(&autoVal,in,d_barker,11);
+      autoVal/=(in_eg+gr_complex(1e-8,0));
       // FIXME
       autoVal = pll_bpsk(autoVal);
       if(abs(autoVal)>=d_threshold){
@@ -227,11 +229,13 @@ namespace gr {
     { 
       float max_corr = 0;
       uint8_t max_idx =0;
-      gr_complex tmpVal,holdVal,diff;
+      gr_complex tmpVal,holdVal,diff,in_eg;
       float phase_diff;
       switch(d_psdu_type){
         case LONG1M:
-          volk_32fc_32f_dot_prod_32fc(&tmpVal, in,d_barker,11);
+          volk_32fc_x2_conjugate_dot_prod_32fc(&in_eg,in,in,11);
+          volk_32fc_32f_dot_prod_32fc(&tmpVal,in,d_barker,11);
+          tmpVal/= (in_eg+gr_complex(1e-8,0));
           // FIXME
           tmpVal = pll_bpsk(tmpVal);
           if(abs(tmpVal)>=d_threshold){
@@ -243,7 +247,9 @@ namespace gr {
           return 0xffff;
         break;
         case DSSS2M:
+          volk_32fc_x2_conjugate_dot_prod_32fc(&in_eg,in,in,11);
           volk_32fc_32f_dot_prod_32fc(&tmpVal, in,d_barker,11);
+          tmpVal/=(in_eg+gr_complex(1e-8,0));
           // FIXME
           tmpVal = pll_qpsk(tmpVal);
           if(abs(tmpVal)>=d_threshold){
@@ -264,6 +270,8 @@ namespace gr {
               max_idx = (uint8_t) i;
             }
           }
+          volk_32fc_x2_conjugate_dot_prod_32fc(&in_eg,in,in,8);
+          holdVal/=(in_eg+gr_complex(1e-8,0));
           // FIXME
           tmpVal = pll_qpsk(holdVal);
           if(abs(tmpVal)>= d_threshold*(8.0/11.0)){
@@ -285,6 +293,8 @@ namespace gr {
               max_idx = (uint8_t) i;
             }
           }
+          volk_32fc_x2_conjugate_dot_prod_32fc(&in_eg,in,in,8);
+          holdVal/=(in_eg+gr_complex(1e-8,0));
           // FIXME
           tmpVal = pll_qpsk(holdVal);
           if(abs(tmpVal)>= d_threshold*(8.0/11.0)){
@@ -381,7 +391,7 @@ namespace gr {
       const gr_complex *in = (const gr_complex *) input_items[0];
       int nin = ninput_items[0]-history();
       int ncon = 0;
-      gr_complex autoVal,diff;
+      gr_complex autoVal,diff, in_eg;
       float phase_diff;
       uint8_t tmpbit;
       while(ncon<nin){
@@ -389,7 +399,9 @@ namespace gr {
           case SEARCH:
             while(ncon<nin){
               if(!d_chip_sync){
+                volk_32fc_x2_conjugate_dot_prod_32fc(&in_eg,&in[ncon],&in[ncon],11);
                 volk_32fc_32f_dot_prod_32fc(&autoVal,&in[ncon++],d_barker,11);
+                autoVal/=(in_eg+gr_complex(1e-8,0)); // avoiding overflow
                 if(abs(autoVal)>=d_threshold){
                   dout<<"at search state, sync a barker sequence. val="<<abs(autoVal)<<", thres="<<d_threshold<<std::endl;
                   d_chip_sync = true;

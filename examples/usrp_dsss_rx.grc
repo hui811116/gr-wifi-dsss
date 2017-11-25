@@ -369,7 +369,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1336, 208)</value>
+      <value>(1072, 72)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -378,57 +378,6 @@
     <param>
       <key>id</key>
       <value>blocks_message_debug_0</value>
-    </param>
-  </block>
-  <block>
-    <key>digital_costas_loop_cc</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(816, 144)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>digital_costas_loop_cc_0</value>
-    </param>
-    <param>
-      <key>w</key>
-      <value>3.14/100</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>order</key>
-      <value>2</value>
-    </param>
-    <param>
-      <key>use_snr</key>
-      <value>False</value>
     </param>
   </block>
   <block>
@@ -455,7 +404,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(544, 104)</value>
+      <value>(544, 136)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1686,7 +1635,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(248, 64)</value>
+      <value>(248, 136)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1861,7 +1810,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1064, 132)</value>
+      <value>(832, 124)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1889,14 +1838,8 @@
     </param>
   </block>
   <connection>
-    <source_block_id>digital_costas_loop_cc_0</source_block_id>
-    <sink_block_id>wifi_dsss_chip_sync_c_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
     <source_block_id>digital_pfb_clock_sync_xxx_0</source_block_id>
-    <sink_block_id>digital_costas_loop_cc_0</sink_block_id>
+    <sink_block_id>wifi_dsss_chip_sync_c_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
