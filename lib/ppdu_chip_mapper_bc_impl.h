@@ -42,6 +42,7 @@ namespace gr {
       int d_copy;
       int d_preCnt;
       int d_rate;
+      int d_append;
       pmt::pmt_t d_rate_tag;
       bool d_preType;
       float d_phase_acc;

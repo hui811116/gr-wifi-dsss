@@ -405,7 +405,7 @@ namespace gr {
                 volk_32fc_32f_dot_prod_32fc(&autoVal,&in[ncon++],d_barker,11);
                 autoVal/=(sqrt(in_eg)+gr_complex(1e-8,0)); // avoiding overflow
                 if(abs(autoVal)>=d_threshold){
-                  dout<<"at search state, sync a barker sequence. val="<<abs(autoVal)<<", thres="<<d_threshold<<std::endl;
+                  //dout<<"at search state, sync a barker sequence. val="<<abs(autoVal)<<", thres="<<d_threshold<<std::endl;
                   d_chip_sync = true;
                   d_chip_cnt = 0;
                   d_prev_sym = pll_bpsk(autoVal);
@@ -486,7 +486,7 @@ namespace gr {
                 d_chip_cnt =0;
                 uint16_t outByte= psdu_get_symbol(&in[ncon++],( (d_psdu_sym_cnt++)%2 == 0));
                 if(outByte==0xffff){
-                  dout<<"psud sync failed, return to search"<<std::endl;
+                  dout<<"psud sync failed, return to search, acc_symbols="<<d_psdu_sym_cnt<<std::endl;
                   enter_search();
                   break;
                 }else{
