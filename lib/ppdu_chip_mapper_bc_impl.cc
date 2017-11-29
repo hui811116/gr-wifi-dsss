@@ -212,8 +212,12 @@ namespace gr {
       phase_b4 = ((byte>>3) & 0x01)? M_PI : 0;
       phase_q2 = ((byte>>6) & 0x01)? 1.5*M_PI : 0.5*M_PI;
       phase_q4 = ((byte>>7) & 0x01)? M_PI : 0;
-      cck_gen(out,phase_00,phase_b2,0,phase_b4);
-      cck_gen(out+8,phase_10,phase_q2,0,phase_q4);
+      d_phase_acc+=phase_00;
+      d_phase_acc = phase_wrap(d_phase_acc);
+      cck_gen(out,d_phase_acc,phase_b2,0,phase_b4);
+      d_phase_acc+=phase_10;
+      d_phase_acc = phase_wrap(d_phase_acc);
+      cck_gen(out+8,d_phase_acc,phase_q2,0,phase_q4);
       return 16;
     }
     int
@@ -230,7 +234,9 @@ namespace gr {
         uint8_t tmpBit = (byte>>((i+1)*2)) & 0x03;
         other[i] = d_cck_qpsk[tmpBit];
       }
-      cck_gen(out,phase_0,other[0],other[1],other[2]);
+      d_phase_acc+=phase_0;
+      d_phase_acc = phase_wrap(d_phase_acc);
+      cck_gen(out,d_phase_acc,other[0],other[1],other[2]);
       return 8;
     }
     int
@@ -275,7 +281,7 @@ namespace gr {
     {
       int nout = 0;
       nconsume = 0;
-      while(nconsume<nin && nout<noutput_items)
+      while(nconsume<nin && nout<noutput_items && d_copy<d_count)
       {
         if( (d_preType && d_copy<LONG_PREAMBLE_LENGTH)||
             (!d_preType && d_copy<SHORT_PREAMBLE_LENGTH) ){
@@ -283,6 +289,7 @@ namespace gr {
             return nout;
           }else{
             nout += dbpsk_1M_chips(out+nout,in[nconsume++],true);
+            d_copy++;
           }
         }else{
           if(nout+nout_check()> noutput_items){
@@ -290,6 +297,7 @@ namespace gr {
           }else{
             bool oddOrEven = (d_copy%2)==0;// only used for 11M
             nout += (*this.*d_chip_mapper)(out+nout,in[nconsume++],oddOrEven);
+            d_copy++;
           }        
         }
       }
@@ -345,7 +353,6 @@ namespace gr {
             d_count = pmt::to_long(tags[0].value);
             d_copy = 0;
             d_phase_acc = 0;
-            //dout<<"found a length tag, size="<<d_count<<std::endl;
             int newLen = update_tag(d_count);
             add_item_tag(0,nitems_written(0),d_lentag,pmt::from_long(newLen),d_name);
           }else{
@@ -358,9 +365,7 @@ namespace gr {
         int nin = std::min(d_count-d_copy,ninput_items[0]);
         int ncon = 0;
         nout = chipGen(out,in,noutput_items,nin,ncon);
-        d_copy+=ncon;
         if(d_count == d_copy){
-          //dout<<"reaching counted byte, reset and prepare for next packet"<<std::endl;
           d_count = 0;
           d_copy  = 0;
         }

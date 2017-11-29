@@ -30,7 +30,7 @@
 
 namespace gr {
   namespace wifi_dsss {
-    #define d_debug 1
+    #define d_debug 0
     #define dout d_debug && std::cout
     #define TWO_PI M_PI*2.0f
     static const float d_barker[11]={1,-1,1,1,-1,1,1,1,-1,-1,-1};
@@ -39,6 +39,7 @@ namespace gr {
                                                   {0x00,0x02,0x03,0x01},
                                                   {0x03,0x01,0x00,0x02}
                                                 };
+    static const float d_cck_thres_adjust = 16.0*std::sqrt(22.0)/121.0;
     static inline float phase_wrap(float phase)
     {
       while(phase>TWO_PI)
@@ -75,13 +76,12 @@ namespace gr {
       message_port_register_out(d_psdu_out);
       enter_search();
       d_chip_buf = (gr_complex*) volk_malloc(sizeof(gr_complex)*64,volk_get_alignment());
-      set_history(11);
       if(threshold<0){
         throw std::invalid_argument("Threshold should be positive number");
       }else if(threshold>11){
-        d_threshold = 1;
+        d_threshold = sqrt(11.0);
       }else{
-        d_threshold = threshold;
+        d_threshold = threshold / sqrt(11.0);
       }
       d_phase = 0;
       d_freq =0;
@@ -103,7 +103,7 @@ namespace gr {
     void
     chip_sync_c_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
     {
-      ninput_items_required[0] = noutput_items + history();
+      ninput_items_required[0] = noutput_items + 11;
     }
     void
     chip_sync_c_impl::enter_search()
@@ -116,6 +116,7 @@ namespace gr {
       d_chip_sync = false;
       d_rx_state = SEARCH;
       d_prev_sym = gr_complex(1.0,0);
+      reset_pll();
     }
     void
     chip_sync_c_impl::enter_sync()
@@ -124,6 +125,7 @@ namespace gr {
       d_hdr_reg = 0x00000000;
       d_hdr_crc = 0x0000;
       d_bit_cnt = 0;
+      d_chip_wait = 0;
       d_rx_state = SYNC;
     }
     void
@@ -155,8 +157,7 @@ namespace gr {
         crc_init = (crc_init<<1) | newLsb;
       }
       if( (crc_init ^d_hdr_crc) == 0xffff){
-        // crc passed
-        //dout<<"crc check passed"<<std::endl;
+        // passed
       }else{
         return false;
       }
@@ -213,8 +214,7 @@ namespace gr {
       float phase_diff;
       volk_32fc_x2_conjugate_dot_prod_32fc(&in_eg,in,in,11);
       volk_32fc_32f_dot_prod_32fc(&autoVal,in,d_barker,11);
-      autoVal/=(in_eg+gr_complex(1e-8,0));
-      // FIXME
+      autoVal/=(sqrt(in_eg)+gr_complex(1e-8,0));
       autoVal = pll_bpsk(autoVal);
       if(abs(autoVal)>=d_threshold){
         diff = autoVal * conj(d_prev_sym);
@@ -235,7 +235,7 @@ namespace gr {
         case LONG1M:
           volk_32fc_x2_conjugate_dot_prod_32fc(&in_eg,in,in,11);
           volk_32fc_32f_dot_prod_32fc(&tmpVal,in,d_barker,11);
-          tmpVal/= (in_eg+gr_complex(1e-8,0));
+          tmpVal/= (sqrt(in_eg)+gr_complex(1e-8,0));
           // FIXME
           tmpVal = pll_bpsk(tmpVal);
           if(abs(tmpVal)>=d_threshold){
@@ -249,7 +249,7 @@ namespace gr {
         case DSSS2M:
           volk_32fc_x2_conjugate_dot_prod_32fc(&in_eg,in,in,11);
           volk_32fc_32f_dot_prod_32fc(&tmpVal, in,d_barker,11);
-          tmpVal/=(in_eg+gr_complex(1e-8,0));
+          tmpVal/=(sqrt(in_eg)+gr_complex(1e-8,0));
           // FIXME
           tmpVal = pll_qpsk(tmpVal);
           if(abs(tmpVal)>=d_threshold){
@@ -268,13 +268,14 @@ namespace gr {
             if(abs(holdVal)>max_corr){
               max_corr = abs(holdVal);
               max_idx = (uint8_t) i;
+              tmpVal = holdVal;
             }
           }
           volk_32fc_x2_conjugate_dot_prod_32fc(&in_eg,in,in,8);
-          holdVal/=(in_eg+gr_complex(1e-8,0));
+          tmpVal/=(sqrt(in_eg)+gr_complex(1e-8,0));
           // FIXME
-          tmpVal = pll_qpsk(holdVal);
-          if(abs(tmpVal)>= d_threshold*(8.0/11.0)){
+          tmpVal = pll_qpsk(tmpVal);
+          if(abs(tmpVal)>= d_threshold*d_cck_thres_adjust){
             diff = tmpVal * conj(d_prev_sym);
             d_prev_sym = tmpVal;
             phase_diff = atan2(diff.imag(),diff.real());
@@ -291,13 +292,14 @@ namespace gr {
             if(abs(holdVal)>max_corr){
               max_corr = abs(holdVal);
               max_idx = (uint8_t) i;
+              tmpVal = holdVal;
             }
           }
           volk_32fc_x2_conjugate_dot_prod_32fc(&in_eg,in,in,8);
-          holdVal/=(in_eg+gr_complex(1e-8,0));
+          tmpVal/=(sqrt(in_eg)+gr_complex(1e-8,0));
           // FIXME
-          tmpVal = pll_qpsk(holdVal);
-          if(abs(tmpVal)>= d_threshold*(8.0/11.0)){
+          tmpVal = pll_qpsk(tmpVal);
+          if(abs(tmpVal)>= d_threshold*d_cck_thres_adjust){
             diff = tmpVal * conj(d_prev_sym);
             d_prev_sym = tmpVal;
             phase_diff = atan2(diff.imag(),diff.real());
@@ -368,8 +370,8 @@ namespace gr {
     chip_sync_c_impl::pll_qpsk(const gr_complex& in)
     {
       gr_complex nco_est = in * gr_expj(-d_phase);
-      float error = ((real(nco_est)>0)? 1.0 : -1 )*imag(nco_est) - 
-          ((imag(nco_est)>0)?1.0:-1)*real(nco_est);
+      float error = ((nco_est.real()>0)? 1.0 : -1.0 )*nco_est.imag() - 
+          ((nco_est.imag()>0)?1.0:-1.0)*nco_est.real();
       d_freq = d_freq + error * d_beta;
       d_phase = d_phase + d_freq + error*d_alpha;
       d_phase = phase_wrap(d_phase);
@@ -389,7 +391,7 @@ namespace gr {
                        gr_vector_void_star &output_items)
     {
       const gr_complex *in = (const gr_complex *) input_items[0];
-      int nin = ninput_items[0]-history();
+      int nin = ninput_items[0]-11;
       int ncon = 0;
       gr_complex autoVal,diff, in_eg;
       float phase_diff;
@@ -401,12 +403,11 @@ namespace gr {
               if(!d_chip_sync){
                 volk_32fc_x2_conjugate_dot_prod_32fc(&in_eg,&in[ncon],&in[ncon],11);
                 volk_32fc_32f_dot_prod_32fc(&autoVal,&in[ncon++],d_barker,11);
-                autoVal/=(in_eg+gr_complex(1e-8,0)); // avoiding overflow
+                autoVal/=(sqrt(in_eg)+gr_complex(1e-8,0)); // avoiding overflow
                 if(abs(autoVal)>=d_threshold){
                   dout<<"at search state, sync a barker sequence. val="<<abs(autoVal)<<", thres="<<d_threshold<<std::endl;
                   d_chip_sync = true;
                   d_chip_cnt = 0;
-                  //d_prev_sym = autoVal;
                   d_prev_sym = pll_bpsk(autoVal);
                 }
               }else{
@@ -415,7 +416,6 @@ namespace gr {
                   d_chip_cnt =0;
                   tmpbit = ppdu_get_symbol(&in[ncon++]);
                   if(tmpbit==0xff){
-                    dout<<"Search failed set chip sync to false"<<std::endl;
                     d_chip_sync= false;
                     d_prev_sym = gr_complex(1.0,0);
                     reset_pll();
@@ -436,38 +436,47 @@ namespace gr {
           break;
           case SYNC:
             while(ncon<nin){
-              d_chip_cnt++;
-              if(d_chip_cnt==11){
-                d_chip_cnt =0;
-                tmpbit = ppdu_get_symbol(&in[ncon++]);
-                if(tmpbit == 0xff){
-                  enter_search();
-                  break;
-                }else{
-                  uint8_t deBit = descrambler(tmpbit);
-                  if(d_bit_cnt<32){
-                    d_hdr_reg |= (deBit<<d_bit_cnt);
+              if(d_chip_wait==0){
+                d_chip_cnt++;
+                if(d_chip_cnt==11){
+                  d_chip_cnt =0;
+                  tmpbit = ppdu_get_symbol(&in[ncon++]);
+                  if(tmpbit == 0xff){
+                    enter_search();
+                    break;
                   }else{
-                    d_hdr_crc |= (deBit<<(d_bit_cnt-32));
-                  }
-                  d_bit_cnt++;
-                  if(d_bit_cnt == 48){
-                    d_bit_cnt =0;
-                    // including crc
-                    if(check_hdr()){
-                      dout<<"At state sync, header check passed"<<std::endl;
-                      enter_psdu();
-                      break;
+                    uint8_t deBit = descrambler(tmpbit);
+                    if(d_bit_cnt<32){
+                      d_hdr_reg |= (deBit<<d_bit_cnt);
                     }else{
-                      dout<<"At state sync, header check failed"<<std::endl;
-                      enter_search();
-                      break;
+                      d_hdr_crc |= (deBit<<(d_bit_cnt-32));
+                    }
+                    d_bit_cnt++;
+                    if(d_bit_cnt == 48){
+                      d_bit_cnt =0;
+                      // including crc
+                      if(check_hdr()){
+                        d_chip_wait = 10;
+                      }else{
+                        enter_search();
+                        break;
+                      }
                     }
                   }
+                }else{
+                  ncon++;
                 }
               }else{
+                // sync passed, but waiting due to rate change
                 ncon++;
+                d_chip_wait--;
+                if(d_chip_wait==0){
+                  enter_psdu();
+                  d_chip_cnt = d_psdu_chip_size-1;
+                  break;
+                }
               }
+              
             }
           break;
           case PSDU:
@@ -477,6 +486,7 @@ namespace gr {
                 d_chip_cnt =0;
                 uint16_t outByte= psdu_get_symbol(&in[ncon++],( (d_psdu_sym_cnt++)%2 == 0));
                 if(outByte==0xffff){
+                  dout<<"psud sync failed, return to search"<<std::endl;
                   enter_search();
                   break;
                 }else{
@@ -484,6 +494,7 @@ namespace gr {
                   psdu_write_bits(outByte);
                   if(d_psdu_bit_cnt==d_psdu_bytes_len*8){
                     // complete reception
+                    dout<<"psdu complete reset and search"<<std::endl;
                     pmt::pmt_t psdu_msg = pmt::make_blob(d_buf,d_psdu_bytes_len);
                     message_port_pub(d_psdu_out,pmt::cons(pmt::PMT_NIL,psdu_msg));
                     enter_search();

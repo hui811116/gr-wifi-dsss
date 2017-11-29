@@ -119,6 +119,8 @@ namespace gr {
       uint64_t d_hdr_buf;
       unsigned int d_hdr_reg;
       uint16_t d_hdr_crc;
+
+      int d_chip_wait;
       // for psdu
       uint8_t d_sig_dec;
       uint8_t d_service_dec;
