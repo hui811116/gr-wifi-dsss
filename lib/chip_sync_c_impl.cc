@@ -486,7 +486,7 @@ namespace gr {
                 d_chip_cnt =0;
                 uint16_t outByte= psdu_get_symbol(&in[ncon++],( (d_psdu_sym_cnt++)%2 == 0));
                 if(outByte==0xffff){
-                  dout<<"psud sync failed, return to search, "<<d_psdu_sym_cnt<<" symbols accumulated"<<std::endl;
+                  dout<<"psud sync failed, return to search, acc_symbols="<<d_psdu_sym_cnt<<std::endl;
                   enter_search();
                   break;
                 }else{

@@ -10,7 +10,7 @@
     </param>
     <param>
       <key>window_size</key>
-      <value>2000,2000</value>
+      <value>1000,600</value>
     </param>
     <param>
       <key>category</key>
@@ -82,6 +82,49 @@
     </param>
   </block>
   <block>
+    <key>variable_function_probe</key>
+    <param>
+      <key>block_id</key>
+      <value>pkt_monitor</value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>function_args</key>
+      <value></value>
+    </param>
+    <param>
+      <key>function_name</key>
+      <value>get_send</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(544, 504)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>fp_tx</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>poll_rate</key>
+      <value>2</value>
+    </param>
+  </block>
+  <block>
     <key>variable</key>
     <param>
       <key>comment</key>
@@ -93,7 +136,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(128, 396)</value>
+      <value>(256, 12)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -120,7 +163,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(368, 476)</value>
+      <value>(376, 68)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -151,7 +194,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(296, 536)</value>
+      <value>(696, 8)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -190,7 +233,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(8, 160)</value>
+      <value>(168, 12)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -206,6 +249,49 @@
     </param>
   </block>
   <block>
+    <key>variable_qtgui_label</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>fp_tx</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>formatter</key>
+      <value>None</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(712, 508)</value>
+    </param>
+    <param>
+      <key>gui_hint</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>show_tx</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>Send Packets</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>int</value>
+    </param>
+  </block>
+  <block>
     <key>variable</key>
     <param>
       <key>comment</key>
@@ -217,7 +303,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(32, 396)</value>
+      <value>(336, 12)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -244,7 +330,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(32, 524)</value>
+      <value>(168, 68)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -275,7 +361,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(176, 464)</value>
+      <value>(568, 8)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -338,7 +424,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(16, 248)</value>
+      <value>(440, 8)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -377,7 +463,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(32, 460)</value>
+      <value>(296, 68)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -412,7 +498,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(168, 108)</value>
+      <value>(32, 252)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -459,7 +545,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(472, 212)</value>
+      <value>(600, 260)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -510,7 +596,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(344, 96)</value>
+      <value>(208, 240)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -561,11 +647,11 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(504, 316)</value>
+      <value>(408, 348)</value>
     </param>
     <param>
       <key>_rotation</key>
-      <value>0</value>
+      <value>180</value>
     </param>
     <param>
       <key>id</key>
@@ -616,11 +702,11 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(752, 316)</value>
+      <value>(240, 348)</value>
     </param>
     <param>
       <key>_rotation</key>
-      <value>0</value>
+      <value>180</value>
     </param>
     <param>
       <key>id</key>
@@ -641,6 +727,41 @@
     <param>
       <key>tagname</key>
       <value>"psdu_len"</value>
+    </param>
+  </block>
+  <block>
+    <key>gadget_packet_monitor</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(432, 176)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>pkt_monitor</value>
+    </param>
+    <param>
+      <key>call</key>
+      <value>False</value>
     </param>
   </block>
   <block>
@@ -1315,7 +1436,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(984, 296)</value>
+      <value>(144, 436)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1486,11 +1607,11 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(720, 204)</value>
+      <value>(616, 348)</value>
     </param>
     <param>
       <key>_rotation</key>
-      <value>0</value>
+      <value>180</value>
     </param>
     <param>
       <key>id</key>
@@ -1533,7 +1654,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(280, 212)</value>
+      <value>(424, 260)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1567,6 +1688,12 @@
     <sink_block_id>wifi_dsss_ppdu_chip_mapper_bc_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_random_pdu_0</source_block_id>
+    <sink_block_id>pkt_monitor</sink_block_id>
+    <source_key>pdus</source_key>
+    <sink_key>send_in</sink_key>
   </connection>
   <connection>
     <source_block_id>blocks_random_pdu_0</source_block_id>

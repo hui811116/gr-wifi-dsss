@@ -35,6 +35,8 @@ namespace gr {
     #define TWO_PI M_PI*2.0f 
     #define LONG_PREAMBLE_LENGTH 24
     #define SHORT_PREAMBLE_LENGTH 15
+
+    #define APPENDED_CHIPS 11
     inline float phase_wrap(float phase)
     {
       while(phase>=TWO_PI)
@@ -87,6 +89,11 @@ namespace gr {
     static const float d_dbpsk_phase[2]={0,M_PI};
     static const float d_dqpsk_phase[4]={0,1.5*M_PI,0.5*M_PI,M_PI};
     static const float d_cck_qpsk[4] = {0,M_PI,0.5*M_PI,1.5*M_PI};
+
+    static const gr_complex d_append_symbols[11] = {gr_complex(1,0),gr_complex(-1,0),gr_complex(1,0),
+                                                    gr_complex(1,0),gr_complex(-1,0),gr_complex(1,0),
+                                                    gr_complex(1,0),gr_complex(1,0),gr_complex(-1,0),
+                                                    gr_complex(-1,0),gr_complex(-1,0)};
     ppdu_chip_mapper_bc::sptr
     ppdu_chip_mapper_bc::make(int rate, const std::string& lentag)
     {
@@ -162,6 +169,7 @@ namespace gr {
       }
       d_rate = rate;
       d_count =0;
+      d_append = APPENDED_CHIPS;
       set_tag_propagation_policy(TPP_DONT);
     }
 
@@ -345,7 +353,8 @@ namespace gr {
       int consume = 0;
       int nout = 0;
       std::vector<tag_t> tags;
-      if(d_count==0){
+      // add append
+      if(d_count==0 && d_append==APPENDED_CHIPS){
         get_tags_in_window(tags,0,0,ninput_items[0],d_lentag);
         if(!tags.empty()){
           int offset = tags[0].offset - nitems_read(0);
@@ -353,7 +362,7 @@ namespace gr {
             d_count = pmt::to_long(tags[0].value);
             d_copy = 0;
             d_phase_acc = 0;
-            int newLen = update_tag(d_count);
+            int newLen = update_tag(d_count) + APPENDED_CHIPS;
             add_item_tag(0,nitems_written(0),d_lentag,pmt::from_long(newLen),d_name);
           }else{
             consume_each(offset);
@@ -361,6 +370,7 @@ namespace gr {
           }
         }
       }
+      /*
       if(d_copy<d_count){
         int nin = std::min(d_count-d_copy,ninput_items[0]);
         int ncon = 0;
@@ -374,7 +384,33 @@ namespace gr {
       }else{
         consume_each(ninput_items[0]);
         return 0;
+      }*/
+      if(d_copy<d_count){
+        int nin = std::min(d_count-d_copy,ninput_items[0]);
+        int ncon = 0;
+        nout = chipGen(out,in,noutput_items,nin,ncon);
+        if(d_count==d_copy){
+          d_append =0;
+        }
+        consume_each(ncon);
+        return nout;
+      }else if(d_append<APPENDED_CHIPS){
+        if(noutput_items>=APPENDED_CHIPS){
+          memcpy(out,d_append_symbols,sizeof(gr_complex)*APPENDED_CHIPS);
+          d_append = APPENDED_CHIPS;
+          d_count = 0;
+          d_copy = 0;
+          consume_each(0);
+          return APPENDED_CHIPS;
+        }else{
+          consume_each(0);
+          return 0;
+        }
+      }else{
+        consume_each(ninput_items[0]);
+        return 0;
       }
+
     }
 
   } /* namespace wifi_dsss */
