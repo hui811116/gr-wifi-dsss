@@ -30,7 +30,7 @@
 
 namespace gr {
   namespace wifi_dsss {
-    #define d_debug 0
+    #define d_debug 1
     #define dout d_debug && std::cout
     #define TWO_PI M_PI*2.0f
     static const float d_barker[11]={1,-1,1,1,-1,1,1,1,-1,-1,-1};
@@ -405,7 +405,7 @@ namespace gr {
                 volk_32fc_32f_dot_prod_32fc(&autoVal,&in[ncon++],d_barker,11);
                 autoVal/=(sqrt(in_eg)+gr_complex(1e-8,0)); // avoiding overflow
                 if(abs(autoVal)>=d_threshold){
-                  dout<<"at search state, sync a barker sequence. val="<<abs(autoVal)<<", thres="<<d_threshold<<std::endl;
+                  //dout<<"at search state, sync a barker sequence. val="<<abs(autoVal)<<", thres="<<d_threshold<<std::endl;
                   d_chip_sync = true;
                   d_chip_cnt = 0;
                   d_prev_sym = pll_bpsk(autoVal);
@@ -486,7 +486,7 @@ namespace gr {
                 d_chip_cnt =0;
                 uint16_t outByte= psdu_get_symbol(&in[ncon++],( (d_psdu_sym_cnt++)%2 == 0));
                 if(outByte==0xffff){
-                  dout<<"psud sync failed, return to search"<<std::endl;
+                  dout<<"psud sync failed, return to search, "<<d_psdu_sym_cnt<<" symbols accumulated"<<std::endl;
                   enter_search();
                   break;
                 }else{
