@@ -5,7 +5,7 @@ A Gnuradio-based implementation of WiFi direct sequence spread spectrum communic
 
 - prerequisite:
 
-    gr-gadgets
+    gr-gadget
 
 - install gr-wifi-dsss:
 ```
