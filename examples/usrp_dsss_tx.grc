@@ -628,6 +628,53 @@
     </param>
   </block>
   <block>
+    <key>gadget_burst_tagger_cc</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(208, 348)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>180</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>gadget_burst_tagger_cc_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>mult</key>
+      <value>4</value>
+    </param>
+    <param>
+      <key>tagname</key>
+      <value>"psdu_len"</value>
+    </param>
+  </block>
+  <block>
     <key>interp_fir_filter_xxx</key>
     <param>
       <key>alias</key>
@@ -680,53 +727,6 @@
     <param>
       <key>type</key>
       <value>ccc</value>
-    </param>
-  </block>
-  <block>
-    <key>lsa_burst_tagger_cc</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(240, 348)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>180</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>lsa_burst_tagger_cc_0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>mult</key>
-      <value>sps</value>
-    </param>
-    <param>
-      <key>tagname</key>
-      <value>"psdu_len"</value>
     </param>
   </block>
   <block>
@@ -1702,14 +1702,14 @@
     <sink_key>psdu_in</sink_key>
   </connection>
   <connection>
-    <source_block_id>interp_fir_filter_xxx_0</source_block_id>
-    <sink_block_id>lsa_burst_tagger_cc_0</sink_block_id>
+    <source_block_id>gadget_burst_tagger_cc_0</source_block_id>
+    <sink_block_id>uhd_usrp_sink_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>lsa_burst_tagger_cc_0</source_block_id>
-    <sink_block_id>uhd_usrp_sink_0</sink_block_id>
+    <source_block_id>interp_fir_filter_xxx_0</source_block_id>
+    <sink_block_id>gadget_burst_tagger_cc_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

@@ -820,6 +820,53 @@
     </param>
   </block>
   <block>
+    <key>gadget_burst_tagger_cc</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(456, 300)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>180</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>gadget_burst_tagger_cc_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>mult</key>
+      <value>4</value>
+    </param>
+    <param>
+      <key>tagname</key>
+      <value>"psdu_len"</value>
+    </param>
+  </block>
+  <block>
     <key>gadget_periodic_sender</key>
     <param>
       <key>alias</key>
@@ -839,7 +886,7 @@
     </param>
     <param>
       <key>filename</key>
-      <value>/home/nic-hui/project/data/data_b20.csv</value>
+      <value>data_b20.csv</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -927,53 +974,6 @@
     <param>
       <key>type</key>
       <value>ccf</value>
-    </param>
-  </block>
-  <block>
-    <key>lsa_burst_tagger_cc</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(456, 300)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>180</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>lsa_burst_tagger_cc_0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>mult</key>
-      <value>sps</value>
-    </param>
-    <param>
-      <key>tagname</key>
-      <value>"psdu_len"</value>
     </param>
   </block>
   <block>
@@ -3323,6 +3323,12 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
+    <source_block_id>gadget_burst_tagger_cc_0</source_block_id>
+    <sink_block_id>uhd_usrp_sink_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
     <source_block_id>gadget_periodic_sender_0</source_block_id>
     <sink_block_id>pkt_monitor</sink_block_id>
     <source_key>pdu_out</source_key>
@@ -3336,13 +3342,7 @@
   </connection>
   <connection>
     <source_block_id>interp_fir_filter_xxx_0</source_block_id>
-    <sink_block_id>lsa_burst_tagger_cc_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>lsa_burst_tagger_cc_0</source_block_id>
-    <sink_block_id>uhd_usrp_sink_0</sink_block_id>
+    <sink_block_id>gadget_burst_tagger_cc_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
