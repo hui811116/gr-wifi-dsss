@@ -22,7 +22,7 @@ sudo make install
 
 # Examples
 - 'usrp_selfloop.grc': A USRP transceiver script, for one USRP
-- 'usrp_wifi_tx.grc', 'usrp_wifi_rx.grc': Operated with two USRPs
+- 'usrp_dsss_tx.grc', 'usrp_dsss_rx.grc': Operated with two USRPs
 
 # Supported Rates
 The prototype supports both long and short preamble and the following data rates:
