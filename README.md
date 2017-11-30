@@ -1,18 +1,29 @@
 # gr-wifi-dsss
 A Gnuradio-based implementation of WiFi direct sequence spread spectrum communications
 
-# Quick Start
-1. Installation
+# Installation
+
+- prerequisite:
+
+    gr-gadgets
+
+- install gr-wifi-dsss:
 ```
+cd gr-wifi-dsss/
 mkdir build
 cd build
 cmake ..
 make
 sudo make install
 ```
-2. Examples
+# Quick start 
 
-`cd examples` and run the scripts in the folder.
+`cd examples` and run the scripts in the folder. 
+
+# Examples
+- 'usrp_selfloop.grc': A USRP transceiver script, for one USRP
+- 'usrp_wifi_tx.grc', 'usrp_wifi_rx.grc': Operated with two USRPs
+
 # Supported Rates
 The prototype supports both long and short preamble and the following data rates:
 - 1Mbps (long preamble only)
