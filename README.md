@@ -1,6 +1,10 @@
 # gr-wifi-dsss
 A Gnuradio-based implementation of WiFi direct sequence spread spectrum communications
 
+# Demo
+
+[![gr-wifi-dsss demo video](http://img.youtube.com/vi/u0h_xftyMqk/0.jpg)](http://www.youtube.com/watch?v=u0h_xftyMqk)
+
 # Installation
 
 - prerequisite:
