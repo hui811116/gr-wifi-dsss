@@ -5,6 +5,7 @@
   <category>[wifi_dsss]</category>
   <import>import wifi_dsss</import>
   <make>wifi_dsss.chip_sync_c($preType,$threshold)</make>
+  <callback>set_preamble_type($preType)</callback>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name

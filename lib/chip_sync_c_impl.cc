@@ -30,7 +30,7 @@
 
 namespace gr {
   namespace wifi_dsss {
-    #define d_debug 1
+    #define d_debug 0
     #define dout d_debug && std::cout
     #define TWO_PI M_PI*2.0f
     static const float d_barker[11]={1,-1,1,1,-1,1,1,1,-1,-1,-1};
@@ -72,6 +72,7 @@ namespace gr {
               d_preType(longPre),
               d_psdu_out(pmt::mp("psdu_out"))
     {
+      d_changeType = false;
       d_sync_word = (longPre)? 0x05CF : 0xF3A0;
       message_port_register_out(d_psdu_out);
       enter_search();
@@ -90,6 +91,7 @@ namespace gr {
       float denum = 1 + 2*d_crit*d_loopbw + d_loopbw*d_loopbw;
       d_alpha = 4*d_crit*d_loopbw/denum;
       d_beta = 4*d_loopbw*d_loopbw/denum;
+      
     }
 
     /*
@@ -105,9 +107,28 @@ namespace gr {
     {
       ninput_items_required[0] = noutput_items + 11;
     }
+
+    void
+    chip_sync_c_impl::set_preamble_type(bool islong)
+    {
+      gr::thread::scoped_lock guard(d_mutex);
+      if(islong == d_preType){
+        dout<<"same Type, set no change"<<std::endl;
+        d_changeType = false;
+      }else{
+        dout<<"set Change"<<std::endl;
+        d_changeType = true;
+      }
+    }
     void
     chip_sync_c_impl::enter_search()
     {
+      if(d_changeType){
+        dout<<"Change type from isLong:"<<d_preType<<" to "<<!d_preType<<std::endl;
+        d_changeType = false;
+        d_preType = !d_preType;
+        d_sync_word = (d_preType)? 0x05CF : 0xF3A0;
+      }
       if(d_preType){
         d_des_state = 0x1B;
       }else{
@@ -236,7 +257,6 @@ namespace gr {
           volk_32fc_x2_conjugate_dot_prod_32fc(&in_eg,in,in,11);
           volk_32fc_32f_dot_prod_32fc(&tmpVal,in,d_barker,11);
           tmpVal/= (sqrt(in_eg)+gr_complex(1e-8,0));
-          // FIXME
           tmpVal = pll_bpsk(tmpVal);
           if(abs(tmpVal)>=d_threshold){
             diff = tmpVal * conj(d_prev_sym);
@@ -250,7 +270,6 @@ namespace gr {
           volk_32fc_x2_conjugate_dot_prod_32fc(&in_eg,in,in,11);
           volk_32fc_32f_dot_prod_32fc(&tmpVal, in,d_barker,11);
           tmpVal/=(sqrt(in_eg)+gr_complex(1e-8,0));
-          // FIXME
           tmpVal = pll_qpsk(tmpVal);
           if(abs(tmpVal)>=d_threshold){
             diff = tmpVal * conj(d_prev_sym);
@@ -273,7 +292,6 @@ namespace gr {
           }
           volk_32fc_x2_conjugate_dot_prod_32fc(&in_eg,in,in,8);
           tmpVal/=(sqrt(in_eg)+gr_complex(1e-8,0));
-          // FIXME
           tmpVal = pll_qpsk(tmpVal);
           if(abs(tmpVal)>= d_threshold*d_cck_thres_adjust){
             diff = tmpVal * conj(d_prev_sym);
@@ -297,7 +315,6 @@ namespace gr {
           }
           volk_32fc_x2_conjugate_dot_prod_32fc(&in_eg,in,in,8);
           tmpVal/=(sqrt(in_eg)+gr_complex(1e-8,0));
-          // FIXME
           tmpVal = pll_qpsk(tmpVal);
           if(abs(tmpVal)>= d_threshold*d_cck_thres_adjust){
             diff = tmpVal * conj(d_prev_sym);
@@ -396,6 +413,11 @@ namespace gr {
       gr_complex autoVal,diff, in_eg;
       float phase_diff;
       uint8_t tmpbit;
+      if(d_changeType){
+        enter_search();
+        consume_each(0);
+        return 0;
+      }
       while(ncon<nin){
         switch(d_rx_state){
           case SEARCH:
@@ -405,7 +427,6 @@ namespace gr {
                 volk_32fc_32f_dot_prod_32fc(&autoVal,&in[ncon++],d_barker,11);
                 autoVal/=(sqrt(in_eg)+gr_complex(1e-8,0)); // avoiding overflow
                 if(abs(autoVal)>=d_threshold){
-                  //dout<<"at search state, sync a barker sequence. val="<<abs(autoVal)<<", thres="<<d_threshold<<std::endl;
                   d_chip_sync = true;
                   d_chip_cnt = 0;
                   d_prev_sym = pll_bpsk(autoVal);

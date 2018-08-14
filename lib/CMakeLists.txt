@@ -24,12 +24,11 @@ include(GrPlatform) #define LIB_SUFFIX
 
 include_directories(${Boost_INCLUDE_DIR} ${VOLK_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS} ${VOLK_LIBRARY_DIRS})
-
 list(APPEND wifi_dsss_sources
     ppdu_prefixer.cc
     ppdu_chip_mapper_bc_impl.cc
     chip_sync_c_impl.cc
-)
+    )
 
 set(wifi_dsss_sources "${wifi_dsss_sources}" PARENT_SCOPE)
 if(NOT wifi_dsss_sources)

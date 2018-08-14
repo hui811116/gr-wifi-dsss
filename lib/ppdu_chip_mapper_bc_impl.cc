@@ -95,79 +95,23 @@ namespace gr {
                                                     gr_complex(1,0),gr_complex(1,0),gr_complex(-1,0),
                                                     gr_complex(-1,0),gr_complex(-1,0)};
     ppdu_chip_mapper_bc::sptr
-    ppdu_chip_mapper_bc::make(int rate, const std::string& lentag)
+    ppdu_chip_mapper_bc::make(const std::string& lentag)
     {
       return gnuradio::get_initial_sptr
-        (new ppdu_chip_mapper_bc_impl(rate,lentag));
+        (new ppdu_chip_mapper_bc_impl(lentag));
     }
 
     /*
      * The private constructor
      */
     ppdu_chip_mapper_bc_impl::ppdu_chip_mapper_bc_impl(
-      int rate, const std::string& lentag)
+      const std::string& lentag)
       : gr::block("ppdu_chip_mapper_bc",
               gr::io_signature::make(1, 1, sizeof(char)),
               gr::io_signature::make(1, 1, sizeof(gr_complex))),
               d_lentag(pmt::intern(lentag)),
               d_name(pmt::intern(alias()))
     {
-      switch(rate)
-      {
-        case LONG1M:
-          d_rate_tag = pmt::intern("LONG1M");
-          d_rateVal = 1;
-          d_preCnt = LONG_PREAMBLE_LENGTH;
-          d_chip_mapper = &ppdu_chip_mapper_bc_impl::dbpsk_1M_chips;
-          d_preType = true;
-        break;
-        case LONG2M:
-          d_rate_tag = pmt::intern("LONG2M");
-          d_rateVal = 2;
-          d_preCnt = LONG_PREAMBLE_LENGTH;
-          d_chip_mapper = &ppdu_chip_mapper_bc_impl::dqpsk_2M_chips;
-          d_preType = true;
-        break;
-        case LONG5_5M:
-          d_rate_tag = pmt::intern("LONG5_5M");
-          d_rateVal = 5.5;
-          d_preCnt = LONG_PREAMBLE_LENGTH;
-          d_chip_mapper = &ppdu_chip_mapper_bc_impl::cck_5_5M_chips;
-          d_preType = true;
-        break;
-        case LONG11M:
-          d_rate_tag = pmt::intern("LONG11M");
-          d_rateVal = 11;
-          d_preCnt = LONG_PREAMBLE_LENGTH;
-          d_chip_mapper = &ppdu_chip_mapper_bc_impl::cck_11M_chips;
-          d_preType = true;
-        break;
-        case SHORT2M:
-          d_rate_tag = pmt::intern("SHORT2M");
-          d_rateVal = 2;
-          d_preCnt = LONG_PREAMBLE_LENGTH;
-          d_chip_mapper = &ppdu_chip_mapper_bc_impl::dqpsk_2M_chips;
-          d_preType = false;
-        break;
-        case SHORT5_5M:
-          d_rate_tag = pmt::intern("SHORT5_5M");
-          d_rateVal = 5.5;
-          d_preCnt = LONG_PREAMBLE_LENGTH;
-          d_chip_mapper = &ppdu_chip_mapper_bc_impl::cck_5_5M_chips;
-          d_preType = false;
-        break;
-        case SHORT11M:
-          d_rate_tag = pmt::intern("SHORT11M");
-          d_rateVal = 11;
-          d_preCnt = LONG_PREAMBLE_LENGTH;
-          d_chip_mapper = &ppdu_chip_mapper_bc_impl::cck_11M_chips;
-          d_preType = false;
-        break;
-        default:
-          throw std::invalid_argument("Unrecognized rate type");
-        break;
-      }
-      d_rate = rate;
       d_count =0;
       d_append = APPENDED_CHIPS;
       set_tag_propagation_policy(TPP_DONT);
@@ -311,6 +255,69 @@ namespace gr {
       }
       return nout;
     }
+    bool
+    ppdu_chip_mapper_bc_impl::updateRate(unsigned char raw)
+    {
+      if(raw == 0){
+        d_rate = LONG1M;
+        d_rate_tag = pmt::intern("LONG1M");
+        d_rateVal = 1;
+        d_preCnt = LONG_PREAMBLE_LENGTH;
+        d_chip_mapper = &ppdu_chip_mapper_bc_impl::dbpsk_1M_chips;
+        d_preType = true;
+      }else if(raw == 1){
+        d_rate = LONG2M;
+        d_rate_tag = pmt::intern("LONG2M");
+        d_rateVal = 2;
+        d_preCnt = LONG_PREAMBLE_LENGTH;
+        d_chip_mapper = &ppdu_chip_mapper_bc_impl::dqpsk_2M_chips;
+        d_preType = true;
+      }else if(raw == 2){
+        d_rate = LONG5_5M;
+        d_rate_tag = pmt::intern("LONG5_5M");
+        d_rateVal = 5.5;
+        d_preCnt = LONG_PREAMBLE_LENGTH;
+        d_chip_mapper = &ppdu_chip_mapper_bc_impl::cck_5_5M_chips;
+        d_preType = true;
+      }else if(raw == 3){
+        d_rate = LONG11M;
+        d_rate_tag = pmt::intern("LONG11M");
+        d_rateVal = 11;
+        d_preCnt = LONG_PREAMBLE_LENGTH;
+        d_chip_mapper = &ppdu_chip_mapper_bc_impl::cck_11M_chips;
+        d_preType = true;
+      }else if(raw == 4){
+        d_rate = SHORT2M;
+        d_rate_tag = pmt::intern("SHORT2M");
+        d_rateVal = 2;
+        d_preCnt = LONG_PREAMBLE_LENGTH;
+        d_chip_mapper = &ppdu_chip_mapper_bc_impl::dqpsk_2M_chips;
+        d_preType = false;
+      }else if(raw == 5){
+        d_rate = SHORT5_5M;
+        d_rate_tag = pmt::intern("SHORT5_5M");
+        d_rateVal = 5.5;
+        d_preCnt = LONG_PREAMBLE_LENGTH;
+        d_chip_mapper = &ppdu_chip_mapper_bc_impl::cck_5_5M_chips;
+        d_preType = false;
+      }else if(raw == 7){
+        d_rate = SHORT11M;
+        d_rate_tag = pmt::intern("SHORT11M");
+        d_rateVal = 11;
+        d_preCnt = LONG_PREAMBLE_LENGTH;
+        d_chip_mapper = &ppdu_chip_mapper_bc_impl::cck_11M_chips;
+        d_preType = false;
+      }else{
+        d_rate = LONG1M;
+        d_rate_tag = pmt::intern("LONG1M");
+        d_rateVal = 1;
+        d_preCnt = LONG_PREAMBLE_LENGTH;
+        d_chip_mapper = &ppdu_chip_mapper_bc_impl::dbpsk_1M_chips;
+        d_preType = true;
+        return false;
+      }
+      return true;
+    }
     int
     ppdu_chip_mapper_bc_impl::update_tag(int total_bytes) const
     {
@@ -359,32 +366,20 @@ namespace gr {
         if(!tags.empty()){
           int offset = tags[0].offset - nitems_read(0);
           if(offset==0){
-            d_count = pmt::to_long(tags[0].value);
+            if(!updateRate(in[0])){
+              d_count = 0;
+            }else{
+              d_count = pmt::to_long(tags[0].value)-1; // NOTE: the additional byte is rate tag  
+              int newLen = update_tag(d_count) + APPENDED_CHIPS;
+              add_item_tag(0,nitems_written(0),d_lentag,pmt::from_long(newLen),d_name);
+            }
             d_copy = 0;
             d_phase_acc = 0;
-            int newLen = update_tag(d_count) + APPENDED_CHIPS;
-            add_item_tag(0,nitems_written(0),d_lentag,pmt::from_long(newLen),d_name);
-          }else{
-            consume_each(offset);
+            consume_each(1); // consume the rate tag, and ready for generating chips
             return 0;
           }
         }
       }
-      /*
-      if(d_copy<d_count){
-        int nin = std::min(d_count-d_copy,ninput_items[0]);
-        int ncon = 0;
-        nout = chipGen(out,in,noutput_items,nin,ncon);
-        if(d_count == d_copy){
-          d_count = 0;
-          d_copy  = 0;
-        }
-        consume_each(ncon);
-        return nout;
-      }else{
-        consume_each(ninput_items[0]);
-        return 0;
-      }*/
       if(d_copy<d_count){
         int nin = std::min(d_count-d_copy,ninput_items[0]);
         int ncon = 0;

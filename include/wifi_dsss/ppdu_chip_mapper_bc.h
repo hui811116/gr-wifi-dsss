@@ -46,7 +46,7 @@ namespace gr {
        * class. wifi_dsss::ppdu_chip_mapper_bc::make is the public interface for
        * creating new instances.
        */
-      static sptr make(int rate, const std::string& lentag);
+      static sptr make(const std::string& lentag);
     };
 
   } // namespace wifi_dsss

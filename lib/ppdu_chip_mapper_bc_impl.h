@@ -57,8 +57,9 @@ namespace gr {
       int (ppdu_chip_mapper_bc_impl::*d_chip_mapper)(gr_complex* out,unsigned char byte, bool even);
       int nout_check() const;
       int update_tag(int total_bytes) const;
+      bool updateRate(unsigned char raw);
      public:
-      ppdu_chip_mapper_bc_impl(int rate, const std::string& lentag);
+      ppdu_chip_mapper_bc_impl(const std::string& lentag);
       ~ppdu_chip_mapper_bc_impl();
 
       // Where all the action really happens

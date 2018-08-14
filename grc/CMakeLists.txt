@@ -16,9 +16,9 @@
 # along with GNU Radio; see the file COPYING.  If not, write to
 # the Free Software Foundation, Inc., 51 Franklin Street,
 # Boston, MA 02110-1301, USA.
-
 install(FILES
     wifi_dsss_ppdu_prefixer.xml
     wifi_dsss_ppdu_chip_mapper_bc.xml
-    wifi_dsss_chip_sync_c.xml DESTINATION share/gnuradio/grc/blocks
+    wifi_dsss_chip_sync_c.xml
+    DESTINATION share/gnuradio/grc/blocks
 )

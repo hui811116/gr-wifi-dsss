@@ -37,6 +37,7 @@ namespace gr {
     public:
       typedef boost::shared_ptr<ppdu_prefixer> sptr;
       static sptr make(int rate);
+      virtual void update_rate(int rate)=0;
     };
 
   } // namespace wifi_dsss

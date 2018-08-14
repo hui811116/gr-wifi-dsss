@@ -15,7 +15,9 @@
 
 
 %include "wifi_dsss/ppdu_prefixer.h"
-GR_SWIG_BLOCK_MAGIC2(wifi_dsss, ppdu_prefixer);%include "wifi_dsss/ppdu_chip_mapper_bc.h"
+GR_SWIG_BLOCK_MAGIC2(wifi_dsss, ppdu_prefixer);
+%include "wifi_dsss/ppdu_chip_mapper_bc.h"
 GR_SWIG_BLOCK_MAGIC2(wifi_dsss, ppdu_chip_mapper_bc);
 %include "wifi_dsss/chip_sync_c.h"
 GR_SWIG_BLOCK_MAGIC2(wifi_dsss, chip_sync_c);
+

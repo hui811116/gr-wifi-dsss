@@ -111,6 +111,9 @@ namespace gr {
         CCK11M
       };
      private:
+      gr::thread::mutex d_mutex;
+      bool d_changeType;
+
       bool d_chip_sync;
       float d_threshold;
       bool d_preType;
@@ -166,7 +169,7 @@ namespace gr {
      public:
       chip_sync_c_impl(bool longPre, float threshold);
       ~chip_sync_c_impl();
-
+      void set_preamble_type(bool islong);
       // Where all the action really happens
       void forecast (int noutput_items, gr_vector_int &ninput_items_required);
 

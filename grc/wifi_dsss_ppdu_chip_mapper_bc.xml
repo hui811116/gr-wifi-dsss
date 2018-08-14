@@ -4,46 +4,12 @@
   <key>wifi_dsss_ppdu_chip_mapper_bc</key>
   <category>[wifi_dsss]</category>
   <import>import wifi_dsss</import>
-  <make>wifi_dsss.ppdu_chip_mapper_bc($rate,$lentag)</make>
+  <make>wifi_dsss.ppdu_chip_mapper_bc($lentag)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name
        * key (makes the value accessible as $keyname, e.g. in the make node)
        * type -->
-  <param>
-    <name>Rate</name>
-    <key>rate</key>
-    <value>0</value>
-    <type>int</type>
-    <option>
-      <name>Long-1Mbps</name>
-      <key>0</key>
-    </option>
-    <option>
-      <name>Long-2Mbps</name>
-      <key>1</key>
-    </option>
-    <option>
-      <name>Long-5.5Mbps</name>
-      <key>2</key>
-    </option>
-    <option>
-      <name>Long-11Mbps</name>
-      <key>3</key>
-    </option>
-    <option>
-      <name>Short-2Mbps</name>
-      <key>4</key>
-    </option>
-    <option>
-      <name>Short-5.5Mbps</name>
-      <key>5</key>
-    </option>
-    <option>
-      <name>Short-11Mbps</name>
-      <key>6</key>
-    </option>
-  </param>
   <param>
     <name>Length Tag</name>
     <key>lentag</key>

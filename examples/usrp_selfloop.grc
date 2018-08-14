@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<?grc format='1' created='3.7.11'?>
+<?grc format='1' created='3.7.12'?>
 <flow_graph>
   <timestamp>Wed Nov 29 18:24:50 2017</timestamp>
   <block>
@@ -73,12 +73,20 @@
       <value>True</value>
     </param>
     <param>
+      <key>sizing_mode</key>
+      <value>fixed</value>
+    </param>
+    <param>
       <key>thread_safe_setters</key>
       <value></value>
     </param>
     <param>
       <key>title</key>
       <value></value>
+    </param>
+    <param>
+      <key>placement</key>
+      <value>(0,0)</value>
     </param>
   </block>
   <block>
@@ -109,6 +117,105 @@
     </param>
   </block>
   <block>
+    <key>variable_qtgui_chooser</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(712, 568)</value>
+    </param>
+    <param>
+      <key>gui_hint</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>drate</value>
+    </param>
+    <param>
+      <key>label0</key>
+      <value></value>
+    </param>
+    <param>
+      <key>label1</key>
+      <value></value>
+    </param>
+    <param>
+      <key>label2</key>
+      <value></value>
+    </param>
+    <param>
+      <key>label3</key>
+      <value></value>
+    </param>
+    <param>
+      <key>label4</key>
+      <value></value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>Data Rate</value>
+    </param>
+    <param>
+      <key>labels</key>
+      <value>['Long-1M','Long-2M','Long-5.5M','Long-11M','Short-2M','Short-5.5M','Short-11M']</value>
+    </param>
+    <param>
+      <key>num_opts</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>option0</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>option1</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>option2</key>
+      <value>2</value>
+    </param>
+    <param>
+      <key>option3</key>
+      <value>3</value>
+    </param>
+    <param>
+      <key>option4</key>
+      <value>4</value>
+    </param>
+    <param>
+      <key>options</key>
+      <value>[0, 1, 2,3,4,5,6]</value>
+    </param>
+    <param>
+      <key>orient</key>
+      <value>Qt.QVBoxLayout</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>int</value>
+    </param>
+    <param>
+      <key>widget</key>
+      <value>combo_box</value>
+    </param>
+  </block>
+  <block>
     <key>variable_function_probe</key>
     <param>
       <key>block_id</key>
@@ -132,7 +239,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(304, 608)</value>
+      <value>(152, 608)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -175,7 +282,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(136, 608)</value>
+      <value>(0, 608)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -249,14 +356,10 @@
     </param>
   </block>
   <block>
-    <key>variable_qtgui_push_button</key>
+    <key>variable</key>
     <param>
       <key>comment</key>
       <value></value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>False</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -264,11 +367,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(864, 568)</value>
-    </param>
-    <param>
-      <key>gui_hint</key>
-      <value></value>
+      <value>(288, 628)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -276,23 +375,11 @@
     </param>
     <param>
       <key>id</key>
-      <value>reset</value>
+      <value>preType</value>
     </param>
     <param>
-      <key>label</key>
-      <value>Reset Monitor</value>
-    </param>
-    <param>
-      <key>pressed</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>released</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>bool</value>
+      <key>value</key>
+      <value>(int)(drate/4)==0</value>
     </param>
   </block>
   <block>
@@ -475,7 +562,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(496, 612)</value>
+      <value>(456, 612)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -518,7 +605,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(656, 612)</value>
+      <value>(592, 612)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -702,6 +789,53 @@
     </param>
   </block>
   <block>
+    <key>blocks_message_strobe</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(64, 164)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_message_strobe_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>msg</key>
+      <value>pmt.intern("TEST")</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>period</key>
+      <value>1000</value>
+    </param>
+  </block>
+  <block>
     <key>blocks_pdu_to_tagged_stream</key>
     <param>
       <key>alias</key>
@@ -721,7 +855,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(480, 212)</value>
+      <value>(648, 220)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -742,6 +876,61 @@
     <param>
       <key>maxoutbuf</key>
       <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_random_pdu</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>mask</key>
+      <value>0xFF</value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(232, 152)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_random_pdu_0</value>
+    </param>
+    <param>
+      <key>length_modulo</key>
+      <value>2</value>
+    </param>
+    <param>
+      <key>maxsize</key>
+      <value>20</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minsize</key>
+      <value>20</value>
     </param>
     <param>
       <key>minoutbuf</key>
@@ -772,7 +961,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(360, 464)</value>
+      <value>(296, 464)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -835,11 +1024,11 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(456, 300)</value>
+      <value>(296, 324)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -867,61 +1056,6 @@
     </param>
   </block>
   <block>
-    <key>gadget_periodic_sender</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>filename</key>
-      <value>data_b20.csv</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(104, 136)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>gadget_periodic_sender_0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>nsend</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>period</key>
-      <value>1000</value>
-    </param>
-    <param>
-      <key>trigger</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>interp_fir_filter_xxx</key>
     <param>
       <key>alias</key>
@@ -941,7 +1075,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(656, 300)</value>
+      <value>(472, 324)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -996,7 +1130,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(968, 160)</value>
+      <value>(960, 176)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1008,7 +1142,7 @@
     </param>
     <param>
       <key>call</key>
-      <value>reset</value>
+      <value>False</value>
     </param>
   </block>
   <block>
@@ -1683,7 +1817,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(176, 276)</value>
+      <value>(24, 300)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3018,7 +3152,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(128, 464)</value>
+      <value>(24, 464)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3193,7 +3327,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(728, 452)</value>
+      <value>(760, 452)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3213,7 +3347,7 @@
     </param>
     <param>
       <key>preType</key>
-      <value>True</value>
+      <value>preType</value>
     </param>
     <param>
       <key>threshold</key>
@@ -3240,11 +3374,11 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(688, 204)</value>
+      <value>(696, 332)</value>
     </param>
     <param>
       <key>_rotation</key>
-      <value>0</value>
+      <value>180</value>
     </param>
     <param>
       <key>id</key>
@@ -3260,10 +3394,6 @@
     </param>
     <param>
       <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>rate</key>
       <value>0</value>
     </param>
   </block>
@@ -3287,7 +3417,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(320, 212)</value>
+      <value>(464, 220)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3307,14 +3437,32 @@
     </param>
     <param>
       <key>rate</key>
-      <value>0</value>
+      <value>drate</value>
     </param>
   </block>
+  <connection>
+    <source_block_id>blocks_message_strobe_0</source_block_id>
+    <sink_block_id>blocks_random_pdu_0</sink_block_id>
+    <source_key>strobe</source_key>
+    <sink_key>generate</sink_key>
+  </connection>
   <connection>
     <source_block_id>blocks_pdu_to_tagged_stream_0</source_block_id>
     <sink_block_id>wifi_dsss_ppdu_chip_mapper_bc_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_random_pdu_0</source_block_id>
+    <sink_block_id>pkt_monitor</sink_block_id>
+    <source_key>pdus</source_key>
+    <sink_key>send_in</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_random_pdu_0</source_block_id>
+    <sink_block_id>wifi_dsss_ppdu_prefixer_0</sink_block_id>
+    <source_key>pdus</source_key>
+    <sink_key>psdu_in</sink_key>
   </connection>
   <connection>
     <source_block_id>digital_pfb_clock_sync_xxx_0</source_block_id>
@@ -3327,18 +3475,6 @@
     <sink_block_id>uhd_usrp_sink_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>gadget_periodic_sender_0</source_block_id>
-    <sink_block_id>pkt_monitor</sink_block_id>
-    <source_key>pdu_out</source_key>
-    <sink_key>send_in</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>gadget_periodic_sender_0</source_block_id>
-    <sink_block_id>wifi_dsss_ppdu_prefixer_0</sink_block_id>
-    <source_key>pdu_out</source_key>
-    <sink_key>psdu_in</sink_key>
   </connection>
   <connection>
     <source_block_id>interp_fir_filter_xxx_0</source_block_id>

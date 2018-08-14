@@ -47,6 +47,8 @@ namespace gr {
        * creating new instances.
        */
       static sptr make(bool longPre, float threshold);
+
+      virtual void set_preamble_type(bool islong)=0;
     };
 
   } // namespace wifi_dsss
