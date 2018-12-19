@@ -68,7 +68,7 @@ namespace gr {
         message_port_register_in(d_in_port);
   			set_msg_handler(d_in_port,boost::bind(&ppdu_prefixer_impl::psdu_in,this,_1));
   			message_port_register_out(d_out_port);
-        
+        update_rate(rate);
   		}
   		~ppdu_prefixer_impl(){}
 
