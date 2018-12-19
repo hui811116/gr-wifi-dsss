@@ -147,7 +147,8 @@ namespace gr {
             ninput_items_required[0] = (int) floor(noutput_items/(float)8.0);
           break;
           default:
-            throw std::runtime_error("undefined rate");
+            //throw std::runtime_error("undefined rate");
+            ninput_items_required[0] = (int) floor(noutput_items/(float)88.0);
           break;
         }
       }
