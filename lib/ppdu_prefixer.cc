@@ -34,6 +34,8 @@ namespace gr {
     #define dout d_debug && std::cout
     #define LONG_PREAMBLE_LEN 18
     #define SHORT_PREAMBLE_LEN 9
+    #define SCRAMBLER_BYTE_RESERVED 1
+    #define MEM_RESERVED 8192
     static const unsigned char d_long_preamble[18] = {
       0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
       0xff,0xff,0xff,0xff,0xA0,0xF3
@@ -105,21 +107,26 @@ namespace gr {
             throw std::runtime_error("Undefined rate type");
           break;
         }
-        d_ppdu_index=1; // first byte reserved for ratetag
-        placePreambleSfd();
+        d_ppdu_index = 0;
+        if(d_long_pre){
+          memcpy(d_buf+d_ppdu_index,d_long_preamble,sizeof(char)*LONG_PREAMBLE_LEN);
+          d_ppdu_index += LONG_PREAMBLE_LEN;
+        }else{
+          memcpy(d_buf+d_ppdu_index,d_short_preamble,sizeof(char)*SHORT_PREAMBLE_LEN);
+          d_ppdu_index += SHORT_PREAMBLE_LEN;
+        }
         placeHeader(io);
         memcpy(&d_buf[d_ppdu_index],uvec,sizeof(char)*io);
         d_ppdu_index+=io;
         scrambler();
         // NOTE hide a rate tag in the first byte
         d_spread_buf[0] = (unsigned char) d_rate;
-        blob = pmt::make_blob(d_spread_buf,d_ppdu_index+1);
+        blob = pmt::make_blob(d_spread_buf,d_ppdu_index+SCRAMBLER_BYTE_RESERVED);
         d_current_pkt = pmt::cons(pmt::PMT_NIL,blob);
         message_port_pub(d_out_port,d_current_pkt);
   		}
       void update_rate(int rate)
       {
-        gr::thread::scoped_lock guard(d_mutex);
         switch(rate){
           case LONG1M:
             d_long_pre = true;
@@ -162,20 +169,10 @@ namespace gr {
         return d_rate;
       }
   	private:
-      void placePreambleSfd()
-      {
-        if(d_long_pre){
-          memcpy(d_buf+d_ppdu_index,d_long_preamble,sizeof(char)*LONG_PREAMBLE_LEN);
-          d_ppdu_index += LONG_PREAMBLE_LEN;
-        }else{
-          memcpy(d_buf+d_ppdu_index,d_short_preamble,sizeof(char)*SHORT_PREAMBLE_LEN);
-          d_ppdu_index += SHORT_PREAMBLE_LEN;
-        }
-      }
       void placeHeader(int psduLen)
       {
-        //unsigned char service = 0x00;
-        // sig
+        gr::thread::scoped_lock guard(d_mutex);
+        // write service and sig
         // d_sig [0]: DSSS1M
         // ...         ...
         // d_sig [3]: DSSS11M
@@ -215,8 +212,7 @@ namespace gr {
             throw std::runtime_error("Undefined rate type");
           break;
         }
-        // service
-        // length
+        // write length
         u16Len = (uint16_t) ceil(tmpLen);
         u8Len = (uint8_t *) & u16Len;
         d_buf[d_ppdu_index++] = u8Len[0];
@@ -235,6 +231,7 @@ namespace gr {
         }
         
         uint16_t crc16_inv = ~crc16_reg;
+        // write crc
         u8Len = (uint8_t*) &crc16_inv;
         d_buf[d_ppdu_index++] = u8Len[0];
         d_buf[d_ppdu_index++] = u8Len[1];
@@ -256,7 +253,7 @@ namespace gr {
             tmp_byte |= (tmp_spd << j);
             d_init_state = (d_init_state<<1) | tmp_spd;
           }
-          d_spread_buf[i] = tmp_byte;
+          d_spread_buf[SCRAMBLER_BYTE_RESERVED+ i] = tmp_byte;
         }
       }
   		const pmt::pmt_t d_in_port;
@@ -265,8 +262,8 @@ namespace gr {
       int d_rate;
       float d_rate_val;
       int d_ppdu_index;
-      unsigned char d_buf[2048];
-      unsigned char d_spread_buf[2048];
+      unsigned char d_buf[MEM_RESERVED];
+      unsigned char d_spread_buf[MEM_RESERVED];
       unsigned char d_init_state; // for spreading code
       pmt::pmt_t d_current_pkt;
       gr::thread::mutex d_mutex;

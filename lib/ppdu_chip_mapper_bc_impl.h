@@ -40,7 +40,8 @@ namespace gr {
      private:
       int d_count;
       int d_copy;
-      int d_preCnt;
+      int d_psdu_symbol_count;
+      int d_psdu_symbol_num;
       int d_rate;
       int d_append;
       pmt::pmt_t d_rate_tag;

@@ -119,15 +119,15 @@ namespace gr {
       bool d_preType;
       // for receiver
       int d_rx_state;
-      uint64_t d_hdr_buf;
       unsigned int d_hdr_reg;
       uint16_t d_hdr_crc;
+      int d_hdr_bps;
 
       int d_chip_wait;
       // for psdu
       uint8_t d_sig_dec;
       uint8_t d_service_dec;
-      uint8_t d_length_dec;
+      uint16_t d_length_dec;
       float d_rate_val;
       int d_bit_len;
       int d_psdu_bytes_len;
@@ -145,7 +145,7 @@ namespace gr {
       int d_bit_cnt;
       gr_complex d_prev_sym;
       uint16_t d_sync_word;
-      unsigned char d_buf[2048];
+      unsigned char d_buf[8192];
       const pmt::pmt_t d_psdu_out;
       gr_complex* d_chip_buf;
       int d_chip_cnt;
@@ -159,8 +159,14 @@ namespace gr {
       void enter_sync();
       void enter_psdu();
       bool check_hdr();
-      uint16_t psdu_get_symbol(const gr_complex* in,bool isEven);
-      uint8_t ppdu_get_symbol(const gr_complex* in);
+      //
+      uint16_t (chip_sync_c_impl::* d_hdr_get_bits)(const gr_complex* in, bool isEven);
+      uint16_t (chip_sync_c_impl::* d_get_symbol_fptr)(const gr_complex* in,bool isEven);
+      uint16_t get_symbol_dbpsk(const gr_complex* in,bool isEven);
+      uint16_t get_symbol_dqpsk(const gr_complex* in,bool isEven);
+      uint16_t get_symbol_cck5_5(const gr_complex* in,bool isEven);
+      uint16_t get_symbol_cck11(const gr_complex* in,bool isEven);
+      //
       void psdu_write_bits(const uint16_t& outByte);
 
       gr_complex pll_bpsk(const gr_complex& in);

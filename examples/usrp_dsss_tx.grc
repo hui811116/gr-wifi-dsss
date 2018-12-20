@@ -255,7 +255,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>2.4e9</value>
+      <value>915e6</value>
     </param>
   </block>
   <block>
@@ -449,7 +449,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>"name=MyB210"</value>
+      <value>"name=NI290101"</value>
     </param>
   </block>
   <block>

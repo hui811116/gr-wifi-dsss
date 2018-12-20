@@ -33,8 +33,9 @@ namespace gr {
     #define d_debug 0
     #define dout d_debug && std::cout
     #define TWO_PI M_PI*2.0f 
-    #define LONG_PREAMBLE_LENGTH 24
-    #define SHORT_PREAMBLE_LENGTH 15
+    #define LONG_PREAMBLE_LENGTH 18
+    #define SHORT_PREAMBLE_LENGTH 9
+    #define WIFI80211DSSS_PHYHDR_BYTES 6
 
     #define APPENDED_CHIPS 11
     inline float phase_wrap(float phase)
@@ -127,10 +128,15 @@ namespace gr {
     void
     ppdu_chip_mapper_bc_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
     {
-      if(d_preType && d_copy<LONG_PREAMBLE_LENGTH){
+      if(    (d_preType && d_copy< (LONG_PREAMBLE_LENGTH + WIFI80211DSSS_PHYHDR_BYTES ) ) 
+          || (!d_preType && d_copy < SHORT_PREAMBLE_LENGTH )  )
+      {
         ninput_items_required[0] = (int) floor(noutput_items/(float)88.0);
-      }else if(!d_preType && d_copy<SHORT_PREAMBLE_LENGTH){
-        ninput_items_required[0] = (int) floor(noutput_items/(float)88.0);
+      }else if( !d_preType &&  
+                (d_copy>= SHORT_PREAMBLE_LENGTH ) &&  
+                (d_copy < ( SHORT_PREAMBLE_LENGTH + WIFI80211DSSS_PHYHDR_BYTES ) ) )
+      {
+        ninput_items_required[0] = (int) floor(noutput_items/(float)44.0);
       }else{
         switch(d_rate){
           case LONG1M:
@@ -236,21 +242,33 @@ namespace gr {
       nconsume = 0;
       while(nconsume<nin && nout<noutput_items && d_copy<d_count)
       {
-        if( (d_preType && d_copy<LONG_PREAMBLE_LENGTH)||
-            (!d_preType && d_copy<SHORT_PREAMBLE_LENGTH) ){
-          if(nout+88 >noutput_items){
+        if( (d_preType && (d_copy< (LONG_PREAMBLE_LENGTH+WIFI80211DSSS_PHYHDR_BYTES) ) )||
+            (!d_preType && (d_copy<SHORT_PREAMBLE_LENGTH) ) ){
+          if( (nout+88) >noutput_items){
             return nout;
           }else{
             nout += dbpsk_1M_chips(out+nout,in[nconsume++],true);
             d_copy++;
           }
+        }else if(!d_preType && 
+          (d_copy>=SHORT_PREAMBLE_LENGTH) && 
+          (d_copy < SHORT_PREAMBLE_LENGTH+WIFI80211DSSS_PHYHDR_BYTES ) ){
+            if( nout+88 > noutput_items){
+              return nout;
+            }else{
+              // For short preamble, the header part use 2Mbps
+              nout += dqpsk_2M_chips(out+nout,in[nconsume++],true);
+              d_copy++;  
+            }
         }else{
           if(nout+nout_check()> noutput_items){
             return nout;
           }else{
-            bool oddOrEven = (d_copy%2)==0;// only used for 11M
-            nout += (*this.*d_chip_mapper)(out+nout,in[nconsume++],oddOrEven);
+            // if no error, should be psdu only
+            bool isEven = (d_psdu_symbol_count%2)==0;// only used for 11M
+            nout += (*this.*d_chip_mapper)(out+nout,in[nconsume++],isEven);
             d_copy++;
+            d_psdu_symbol_count += d_psdu_symbol_num;
           }        
         }
       }
@@ -263,58 +281,58 @@ namespace gr {
         d_rate = LONG1M;
         d_rate_tag = pmt::intern("LONG1M");
         d_rateVal = 1;
-        d_preCnt = LONG_PREAMBLE_LENGTH;
         d_chip_mapper = &ppdu_chip_mapper_bc_impl::dbpsk_1M_chips;
         d_preType = true;
+        d_psdu_symbol_num = 8;
       }else if(raw == 1){
         d_rate = LONG2M;
         d_rate_tag = pmt::intern("LONG2M");
         d_rateVal = 2;
-        d_preCnt = LONG_PREAMBLE_LENGTH;
         d_chip_mapper = &ppdu_chip_mapper_bc_impl::dqpsk_2M_chips;
         d_preType = true;
+        d_psdu_symbol_num = 4;
       }else if(raw == 2){
         d_rate = LONG5_5M;
         d_rate_tag = pmt::intern("LONG5_5M");
         d_rateVal = 5.5;
-        d_preCnt = LONG_PREAMBLE_LENGTH;
         d_chip_mapper = &ppdu_chip_mapper_bc_impl::cck_5_5M_chips;
         d_preType = true;
+        d_psdu_symbol_num = 2;
       }else if(raw == 3){
         d_rate = LONG11M;
         d_rate_tag = pmt::intern("LONG11M");
         d_rateVal = 11;
-        d_preCnt = LONG_PREAMBLE_LENGTH;
         d_chip_mapper = &ppdu_chip_mapper_bc_impl::cck_11M_chips;
         d_preType = true;
+        d_psdu_symbol_num = 1;
       }else if(raw == 4){
         d_rate = SHORT2M;
         d_rate_tag = pmt::intern("SHORT2M");
         d_rateVal = 2;
-        d_preCnt = LONG_PREAMBLE_LENGTH;
         d_chip_mapper = &ppdu_chip_mapper_bc_impl::dqpsk_2M_chips;
         d_preType = false;
+        d_psdu_symbol_num = 4;
       }else if(raw == 5){
         d_rate = SHORT5_5M;
         d_rate_tag = pmt::intern("SHORT5_5M");
         d_rateVal = 5.5;
-        d_preCnt = LONG_PREAMBLE_LENGTH;
         d_chip_mapper = &ppdu_chip_mapper_bc_impl::cck_5_5M_chips;
         d_preType = false;
-      }else if(raw == 7){
+        d_psdu_symbol_num = 2;
+      }else if(raw == 6){
         d_rate = SHORT11M;
         d_rate_tag = pmt::intern("SHORT11M");
         d_rateVal = 11;
-        d_preCnt = LONG_PREAMBLE_LENGTH;
         d_chip_mapper = &ppdu_chip_mapper_bc_impl::cck_11M_chips;
         d_preType = false;
+        d_psdu_symbol_num = 1;
       }else{
         d_rate = LONG1M;
         d_rate_tag = pmt::intern("LONG1M");
         d_rateVal = 1;
-        d_preCnt = LONG_PREAMBLE_LENGTH;
         d_chip_mapper = &ppdu_chip_mapper_bc_impl::dbpsk_1M_chips;
         d_preType = true;
+        d_psdu_symbol_num = 8;
         return false;
       }
       return true;
@@ -327,22 +345,27 @@ namespace gr {
           return total_bytes*88;
         break;
         case LONG2M:
-          return 24*88+(total_bytes-24)*44;
+          return LONG_PREAMBLE_LENGTH*88 +
+                 (total_bytes-LONG_PREAMBLE_LENGTH)*44;
         break;
         case LONG5_5M:
-          return 24*88+(total_bytes-24)*16;
+          return LONG_PREAMBLE_LENGTH*88+(total_bytes-LONG_PREAMBLE_LENGTH)*16;
         break;
         case LONG11M:
-          return 24*88+(total_bytes-24)*8;
+          return LONG_PREAMBLE_LENGTH*88+(total_bytes-LONG_PREAMBLE_LENGTH)*8;
         break;
         case SHORT2M:
-          return 15*88+(total_bytes-15)*44;
+          return SHORT_PREAMBLE_LENGTH*88+(total_bytes-SHORT_PREAMBLE_LENGTH)*44;
         break;
         case SHORT5_5M:
-          return 15*88+(total_bytes-15)*16;
+          return SHORT_PREAMBLE_LENGTH *88+
+                 WIFI80211DSSS_PHYHDR_BYTES * 44 +
+                 (total_bytes- SHORT_PREAMBLE_LENGTH - WIFI80211DSSS_PHYHDR_BYTES )*16;
         break;
         case SHORT11M:
-          return 15*88+(total_bytes-15)*8;
+          return SHORT_PREAMBLE_LENGTH *88+
+                 WIFI80211DSSS_PHYHDR_BYTES*44 +
+                 (total_bytes-SHORT_PREAMBLE_LENGTH )*8;
         break;
         default:
           return 0;
@@ -376,6 +399,7 @@ namespace gr {
             }
             d_copy = 0;
             d_phase_acc = 0;
+            d_psdu_symbol_count =0;
             consume_each(1); // consume the rate tag, and ready for generating chips
             return 0;
           }
@@ -391,13 +415,13 @@ namespace gr {
         consume_each(ncon);
         return nout;
       }else if(d_append<APPENDED_CHIPS){
-        if(noutput_items>=APPENDED_CHIPS){
+        if( (noutput_items-nout)>=APPENDED_CHIPS){
           memcpy(out,d_append_symbols,sizeof(gr_complex)*APPENDED_CHIPS);
           d_append = APPENDED_CHIPS;
           d_count = 0;
           d_copy = 0;
           consume_each(0);
-          return APPENDED_CHIPS;
+          return nout+APPENDED_CHIPS;
         }else{
           consume_each(0);
           return 0;
