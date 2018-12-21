@@ -201,11 +201,11 @@ namespace gr {
           case LONG11M:
             d_buf[d_ppdu_index++] = d_sig[3];
             tmpLen = 8*psduLen/(float)11.0;
-            if(11*(ceil(tmpLen)-tmpLen) >= 8 ){
+            if(11.0*(ceil(tmpLen)-tmpLen) < 8.0 ){
               // extend length field
-              d_buf[d_ppdu_index++] = 0x84;
-            }else{
               d_buf[d_ppdu_index++] = 0x04;
+            }else{
+              d_buf[d_ppdu_index++] = 0x84;
             }
           break;
           default:
