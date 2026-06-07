@@ -182,13 +182,9 @@ namespace gr {
     int
     ppdu_chip_mapper_bc_impl::cck_11M_chips(gr_complex* out, uint8_t byte, bool even)
     {
-      float phase_0;
+      float phase_0 = (even)? phase_0 = d_cck_dqpsk_phase[byte&0x03][0] :
+                              d_cck_dqpsk_phase[byte&0x03][1];
       float other[3];
-      if(even){
-        phase_0 = d_cck_dqpsk_phase[byte&0x03][0];
-      }else{
-        phase_0 = d_cck_dqpsk_phase[byte&0x03][1];
-      }
       for(int i=0;i<3;++i){
         uint8_t tmpBit = (byte>>((i+1)*2)) & 0x03;
         other[i] = d_cck_qpsk[tmpBit];
@@ -399,7 +395,7 @@ namespace gr {
             }
             d_copy = 0;
             d_phase_acc = 0;
-            d_psdu_symbol_count =0;
+            d_psdu_symbol_count =0; // for 11M
             consume_each(1); // consume the rate tag, and ready for generating chips
             return 0;
           }

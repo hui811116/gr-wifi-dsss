@@ -216,6 +216,11 @@ namespace gr {
         // first check service length field
         d_psdu_bytes_len = (int) floor(d_length_dec * 11/8.0);
         // check here
+        if( (d_service_dec >> 6 ) & 0x01 ){
+          dout<<"Receiver: DSSS11M extended bits true"<<std::endl;
+        }else{
+          dout<<"Receiver: DSSS11M extended bits false"<<std::endl;
+        }
         d_psdu_bytes_len = ( (d_service_dec>>6) & 0x01)? d_psdu_bytes_len-1 : d_psdu_bytes_len;
         d_psdu_chip_size = 8;
         d_psdu_type = CCK11M;
