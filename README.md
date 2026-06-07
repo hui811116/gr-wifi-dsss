@@ -6,6 +6,8 @@ A Gnuradio-based implementation of Wi-Fi direct sequence spread spectrum communi
 > It has not been verified on actual hardware (e.g., USRP). 
 > Please exercise caution and expect potential issues if you intend to use this for over-the-air transmission.
 
+**Version Support:** For GNU Radio <= 3.6, the `legacy` branch is kept intact, but will no longer be supported. All future updates will be made from GNU Radio 3.10 onwards.
+
 # Demo
 
 [![gr-wifi-dsss demo video](http://img.youtube.com/vi/u0h_xftyMqk/0.jpg)](http://www.youtube.com/watch?v=u0h_xftyMqk)
